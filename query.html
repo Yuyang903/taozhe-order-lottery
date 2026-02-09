@@ -8,6 +8,35 @@
         * {
             box-sizing: border-box;
         }
+
+        /* 统一滚动条样式优化 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(19, 78, 94, 0.3); /* 使用深绿色调 */
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(19, 78, 94, 0.6);
+            background-clip: content-box;
+        }
+
+        html {
+            overflow-y: scroll; /* 强制显示滚动条，防止页面抖动 */
+            overflow-x: hidden; /* 强制隐藏横向滚动条 */
+        }
+
         body {
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
             background-color: #f8f9fa;
