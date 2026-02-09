@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>陶喆订单抽奖系统 - 商业需求文档 (BRD)</title>
+    <style>
+        body {
+            font-family: "Microsoft YaHei", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .container {
+            background-color: #fff;
+            padding: 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #2980b9;
+            margin-top: 30px;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+        }
+        h3 {
+            color: #16a085;
+            margin-top: 20px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>陶喆订单抽奖系统 - 商业需求文档 (BRD)</h1>
+        
+        <table>
+            <tr>
+                <th>项目名称</th>
+                <td>陶喆订单抽奖系统</td>
+                <th>版本</th>
+                <td>V1.0</td>
+            </tr>
+            <tr>
+                <th>文档日期</th>
+                <td>2026-02-09</td>
+                <th>撰写人</th>
+                <td>Trae Agent</td>
+            </tr>
+        </table>
+
+        <h2>1. 项目背景</h2>
+        <p>为了配合陶喆相关活动/产品的销售推广，提升用户购单后的参与感与惊喜感，计划开展直播抽奖活动。通过“下单即可参与抽奖”的机制，刺激用户消费，同时利用直播形式增加活动透明度与互动性，最后通过H5页面将流量沉淀至私域社群。</p>
+
+        <h2>2. 商业目标</h2>
+        <ul>
+            <li><strong>提升转化率</strong>：通过抽奖活动激励犹豫用户下单。</li>
+            <li><strong>增强互动性</strong>：利用直播抽奖形式，制造活动热点，提升品牌曝光。</li>
+            <li><strong>私域引流</strong>：通过H5查询结果页面的社群引流入口，将公域/订单用户转化为私域社群用户，便于后续营销。</li>
+        </ul>
+
+        <h2>3. 目标受众</h2>
+        <ul>
+            <li>已购买陶喆相关产品/票务的订单用户。</li>
+            <li>关注陶喆活动的潜在粉丝群体。</li>
+        </ul>
+
+        <h2>4. 核心业务需求</h2>
+        <h3>4.1 订单数据管理</h3>
+        <p>需要一个简单高效的方式将线下或第三方平台的订单数据导入到抽奖系统中，作为抽奖池的基数。</p>
+
+        <h3>4.2 直播抽奖工具</h3>
+        <p>提供一个视觉效果好、操作简便的Web端抽奖界面，供主播在直播过程中使用。要求过程透明、结果随机。</p>
+
+        <h3>4.3 用户自助查询与引流</h3>
+        <p>提供移动端H5页面，方便用户输入订单号查询中奖结果。无论中奖与否，均需展示社群二维码，最大化引流效果。对于中奖用户，需提供在线登记入口，收集姓名与联系方式，确保奖品顺利发放。</p>
+
+        <h2>5. 成功指标 (KPI)</h2>
+        <ul>
+            <li><strong>系统稳定性</strong>：直播抽奖过程无卡顿，查询服务无宕机。</li>
+            <li><strong>用户体验</strong>：查询页面加载速度快，操作流程简单。</li>
+            <li><strong>引流效果</strong>：通过H5页面底部的二维码扫码进群人数。</li>
+        </ul>
+
+        <h2>6. 风险与对策</h2>
+        <table>
+            <tr>
+                <th>风险点</th>
+                <th>描述</th>
+                <th>对策</th>
+            </tr>
+            <tr>
+                <td>数据准确性</td>
+                <td>导入的订单号可能有误或重复</td>
+                <td>系统在导入时增加格式校验和去重机制。</td>
+            </tr>
+            <tr>
+                <td>并发压力</td>
+                <td>直播口播查询时可能会有瞬时高并发</td>
+                <td>H5页面采用静态化或轻量级架构，后端接口做好缓存或限流。</td>
+            </tr>
+            <tr>
+                <td>客诉风险</td>
+                <td>用户质疑抽奖公平性</td>
+                <td>直播全程录屏，后台保留抽奖日志，规则文案在H5页面清晰展示。</td>
+            </tr>
+            <tr>
+                <td>隐私风险</td>
+                <td>收集用户手机号等敏感信息</td>
+                <td>页面增加隐私授权提示，后台数据严格权限控制，仅授权人员可导出。</td>
+            </tr>
+        </table>
+
+        <div class="footer">
+            <p>&copy; 2026 享乐派需求管理部</p>
+        </div>
+    </div>
+</body>
+</html>
