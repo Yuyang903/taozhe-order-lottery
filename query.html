@@ -2,25 +2,19 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>陶喆活动抽奖查询</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>陶喆订单抽奖 - 结果查询</title>
     <style>
-        * {
-            box-sizing: border-box;
-        }
         body {
-            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-            background-color: #f8f9fa;
             margin: 0;
             padding: 0;
+            font-family: "Microsoft YaHei", sans-serif;
+            background-color: #f5f5f5;
             color: #333;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
         }
-        
+
         .header {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            background: linear-gradient(135deg, #134E5E, #71B280);
             color: white;
             padding: 30px 20px;
             text-align: center;
@@ -28,67 +22,54 @@
             border-bottom-right-radius: 20px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
-        
+
         .header h1 {
             margin: 0;
             font-size: 1.5rem;
-            font-weight: bold;
-        }
-        
-        .header p {
-            margin: 10px 0 0;
-            font-size: 0.9rem;
-            opacity: 0.9;
         }
 
         .container {
-            flex: 1;
             padding: 20px;
             max-width: 600px;
             margin: 0 auto;
-            width: 100%;
         }
 
-        .card {
+        .search-box {
             background: white;
-            border-radius: 12px;
-            padding: 25px 20px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             margin-top: -20px;
-            text-align: center;
         }
 
         .input-group {
-            margin-bottom: 20px;
-            text-align: left;
+            margin-bottom: 15px;
         }
-        
+
         .input-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
             font-weight: bold;
-            color: #555;
-            font-size: 0.9rem;
         }
 
         input[type="text"], input[type="tel"] {
             width: 100%;
-            padding: 12px 15px;
+            padding: 10px;
             border: 1px solid #ddd;
-            border-radius: 8px;
+            border-radius: 5px;
             font-size: 1rem;
+            box-sizing: border-box;
             outline: none;
-            transition: border-color 0.2s;
         }
-        
+
         input[type="text"]:focus, input[type="tel"]:focus {
-            border-color: #e74c3c;
+            border-color: #134E5E;
         }
 
         .btn {
             width: 100%;
             padding: 12px;
-            background-color: #e74c3c;
+            background-color: #134E5E;
             color: white;
             border: none;
             border-radius: 8px;
@@ -99,20 +80,18 @@
         }
         
         .btn:active {
-            background-color: #c0392b;
+            background-color: #0e3d4a;
         }
 
         .result-area {
-            margin-top: 25px;
-            padding-top: 25px;
-            border-top: 1px dashed #eee;
-            display: none; /* 默认隐藏 */
+            margin-top: 20px;
+            display: none;
+            text-align: center;
         }
 
         .status-icon {
             font-size: 3rem;
             margin-bottom: 10px;
-            display: block;
         }
 
         .status-text {
@@ -122,38 +101,35 @@
         }
 
         .status-desc {
-            color: #777;
-            font-size: 0.9rem;
+            color: #666;
             margin-bottom: 20px;
         }
 
-        /* 状态样式 */
-        .status-success { color: #27ae60; }
-        .status-fail { color: #7f8c8d; }
+        .status-success { color: #2ecc71; }
         .status-error { color: #e74c3c; }
+        .status-info { color: #3498db; }
 
         .winner-form {
             text-align: left;
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+            display: none;
         }
 
         .community-section {
-            margin-top: 30px;
+            margin-top: 40px;
             text-align: center;
+            background: white;
             padding: 20px;
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
-        
+
         .qrcode-placeholder {
             width: 150px;
             height: 150px;
             background-color: #eee;
-            margin: 15px auto;
+            margin: 10px auto;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -161,107 +137,108 @@
             font-size: 0.8rem;
         }
 
-        .footer-info {
+        .footer {
             text-align: center;
-            font-size: 0.8rem;
             color: #999;
-            padding: 20px 0;
+            font-size: 0.8rem;
+            margin-top: 30px;
+            padding-bottom: 20px;
         }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>抽奖结果查询</h1>
-        <p>输入订单号，查询您的好运</p>
+        <h1>陶喆订单抽奖查询</h1>
+        <p>输入订单号查询中奖结果</p>
     </div>
 
     <div class="container">
-        <div class="card">
+        <div class="search-box">
             <div class="input-group">
-                <label for="orderNo">订单号</label>
-                <input type="text" id="orderNo" placeholder="请输入您的订单编号">
+                <label for="orderInput">订单号</label>
+                <input type="text" id="orderInput" placeholder="请输入您的订单号">
             </div>
-            <button class="btn" onclick="checkOrder()">立即查询</button>
+            <button class="btn" id="queryBtn">立即查询</button>
+        </div>
 
-            <!-- 查询结果区域 -->
-            <div class="result-area" id="resultArea">
-                <!-- 动态内容将注入这里 -->
+        <div class="result-area" id="resultArea">
+            <div class="status-icon" id="statusIcon"></div>
+            <div class="status-text" id="statusText"></div>
+            <div class="status-desc" id="statusDesc"></div>
+
+            <div class="winner-form" id="winnerForm">
+                <div style="margin-bottom: 15px; font-weight: bold;">请填写领奖信息：</div>
+                <div class="input-group">
+                    <label>姓名</label>
+                    <input type="text" placeholder="请输入真实姓名">
+                </div>
+                <div class="input-group">
+                    <label>电话</label>
+                    <input type="tel" placeholder="请输入联系电话">
+                </div>
+                <button class="btn" onclick="alert('登记成功！请等待工作人员联系。')">提交登记</button>
             </div>
         </div>
 
         <div class="community-section">
-            <h3 style="margin-top: 0; color: #333;">加入陶喆粉丝社群</h3>
-            <p style="color: #666; font-size: 0.9rem;">获取最新活动资讯，不错过每一份福利！</p>
+            <h3>加入陶喆粉丝社群</h3>
+            <p>获取最新活动资讯，与其他粉丝互动</p>
             <div class="qrcode-placeholder">
-                [二维码图片占位]
+                社群二维码<br>(此处放置图片)
             </div>
-            <p style="font-size: 0.8rem; color: #999;">长按识别二维码加入</p>
-        </div>
-
-        <div class="footer-info">
-            &copy; 2026 享乐派需求管理部
+            <p style="font-size: 0.8rem; color: #666;">长按识别二维码加入</p>
         </div>
     </div>
 
+    <div class="footer">
+        &copy; 2026 享乐派需求管理部
+    </div>
+
     <script>
-        function checkOrder() {
-            const orderNo = document.getElementById('orderNo').value.trim();
-            const resultArea = document.getElementById('resultArea');
+        const queryBtn = document.getElementById('queryBtn');
+        const resultArea = document.getElementById('resultArea');
+        const statusIcon = document.getElementById('statusIcon');
+        const statusText = document.getElementById('statusText');
+        const statusDesc = document.getElementById('statusDesc');
+        const winnerForm = document.getElementById('winnerForm');
+
+        queryBtn.addEventListener('click', () => {
+            const orderId = document.getElementById('orderInput').value.trim();
             
-            if (!orderNo) {
+            if (!orderId) {
                 alert('请输入订单号');
                 return;
             }
 
             // 模拟查询逻辑
-            // 实际开发中应调用后端 API
             resultArea.style.display = 'block';
-            
-            let html = '';
+            winnerForm.style.display = 'none';
 
-            // 模拟三种状态：
-            // 1. 中奖 (输入 "888" 模拟)
-            // 2. 未中奖 (输入 "000" 模拟)
-            // 3. 不存在 (其他)
-            
-            if (orderNo === '888') {
-                // 中奖状态
-                html = `
-                    <div class="status-icon status-success">🎉</div>
-                    <div class="status-text status-success">恭喜！您已中奖！</div>
-                    <div class="status-desc">请填写下方信息以便我们为您发放奖品</div>
-                    
-                    <div class="winner-form">
-                        <div class="input-group">
-                            <label>姓名</label>
-                            <input type="text" placeholder="请输入您的真实姓名">
-                        </div>
-                        <div class="input-group">
-                            <label>联系电话</label>
-                            <input type="tel" placeholder="请输入您的手机号码">
-                        </div>
-                        <button class="btn" onclick="alert('提交成功！请保持电话畅通。')">提交登记</button>
-                    </div>
-                `;
-            } else if (orderNo === '000') {
-                // 未中奖状态
-                html = `
-                    <div class="status-icon status-fail">😔</div>
-                    <div class="status-text status-fail">很遗憾，未中奖</div>
-                    <div class="status-desc">感谢您的参与，请继续关注我们的后续活动。</div>
-                `;
+            if (orderId === '888') {
+                // 中奖
+                statusIcon.innerHTML = '🎉';
+                statusIcon.className = 'status-icon status-success';
+                statusText.innerHTML = '恭喜！您中奖了！';
+                statusText.className = 'status-text status-success';
+                statusDesc.innerHTML = '您的订单号 ' + orderId + ' 已中奖，请尽快登记信息。';
+                winnerForm.style.display = 'block';
+            } else if (orderId === '000') {
+                // 未中奖
+                statusIcon.innerHTML = '🥺';
+                statusIcon.className = 'status-icon status-info';
+                statusText.innerHTML = '很遗憾，未中奖';
+                statusText.className = 'status-text status-info';
+                statusDesc.innerHTML = '感谢您的参与，下次好运！';
             } else {
-                // 订单不存在
-                html = `
-                    <div class="status-icon status-error">⚠️</div>
-                    <div class="status-text status-error">未找到该订单</div>
-                    <div class="status-desc">请核对订单号是否输入正确。</div>
-                `;
+                // 不存在
+                statusIcon.innerHTML = '🔍';
+                statusIcon.className = 'status-icon status-error';
+                statusText.innerHTML = '未找到该订单';
+                statusText.className = 'status-text status-error';
+                statusDesc.innerHTML = '请核对订单号是否正确。';
             }
-
-            resultArea.innerHTML = html;
-        }
+        });
     </script>
 </body>
 </html>
