@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>陶喆订单抽奖系统 - 产品需求文档 (PRD)</title>
+    <style>
+        body {
+            font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f5f7;
+        }
+        .container {
+            background-color: #fff;
+            padding: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-radius: 8px;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #e74c3c;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            background-color: #f8f9fa;
+            padding: 10px 15px;
+            border-left: 5px solid #e74c3c;
+            color: #34495e;
+            margin-top: 40px;
+            border-radius: 0 4px 4px 0;
+        }
+        h3 {
+            color: #7f8c8d;
+            margin-top: 25px;
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        .mockup {
+            background-color: #ecf0f1;
+            padding: 15px;
+            border: 1px dashed #bdc3c7;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #dfe6e9;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #eef2f3;
+            font-weight: 600;
+        }
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #fff;
+        }
+        .tag-p0 { background-color: #e74c3c; } /* High Priority */
+        .tag-p1 { background-color: #f39c12; } /* Medium Priority */
+        .status-flow {
+            background-color: #e8f6f3;
+            padding: 15px;
+            border-radius: 4px;
+            color: #16a085;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>陶喆订单抽奖系统 - 产品需求文档 (PRD)</h1>
+        
+        <table>
+            <tr>
+                <th>项目名称</th>
+                <td>陶喆订单抽奖系统</td>
+                <th>版本</th>
+                <td>V1.0</td>
+            </tr>
+            <tr>
+                <th>最后更新</th>
+                <td>2026-02-09</td>
+                <th>状态</th>
+                <td>初稿</td>
+            </tr>
+        </table>
+
+        <h2>1. 产品概述</h2>
+        <p>本项目旨在开发一套轻量级的订单抽奖系统，包含后台数据管理、前台直播抽奖展示以及移动端H5结果查询三个核心模块。系统需支持订单号的导入，并在直播中实时抽取幸运订单，同时为用户提供便捷的查询入口并进行社群导流。</p>
+
+        <h2>2. 功能架构</h2>
+        <p>系统分为三个端：</p>
+        <ol>
+            <li><strong>管理后台 (Admin)</strong>：负责订单数据的录入/导入。</li>
+            <li><strong>抽奖大屏 (Web)</strong>：负责直播时的抽奖动画与结果产生。</li>
+            <li><strong>用户查询端 (H5)</strong>：负责用户自助查询与社群引流。</li>
+        </ol>
+
+        <h2>3. 详细功能需求</h2>
+
+        <h3>3.1 管理后台 - 订单导入</h3>
+        <table>
+            <tr>
+                <th>功能点</th>
+                <th>优先级</th>
+                <th>详细描述</th>
+            </tr>
+            <tr>
+                <td>手动录入</td>
+                <td><span class="tag tag-p0">P0</span></td>
+                <td>管理员可在输入框中直接输入订单号，支持单次输入多个（换行分隔）。</td>
+            </tr>
+            <tr>
+                <td>数据校验</td>
+                <td><span class="tag tag-p0">P0</span></td>
+                <td>系统需自动去除重复订单号，并过滤空行。</td>
+            </tr>
+            <tr>
+                <td>订单列表</td>
+                <td><span class="tag tag-p1">P1</span></td>
+                <td>展示已导入的订单总数，以及订单列表，支持删除误操作的订单。</td>
+            </tr>
+             <tr>
+                <td>重置/清空</td>
+                <td><span class="tag tag-p1">P1</span></td>
+                <td>支持一键清空所有订单数据（需二次确认），以便下一场活动使用。</td>
+            </tr>
+        </table>
+
+        <h3>3.2 Web端抽奖工具</h3>
+        <table>
+            <tr>
+                <th>功能点</th>
+                <th>优先级</th>
+                <th>详细描述</th>
+            </tr>
+            <tr>
+                <td>抽奖界面</td>
+                <td><span class="tag tag-p0">P0</span></td>
+                <td>全屏展示，设计需大气、喜庆。核心区域显示滚动的订单号。</td>
+            </tr>
+            <tr>
+                <td>开始/停止控制</td>
+                <td><span class="tag tag-p0">P0</span></td>
+                <td>通过空格键或屏幕按钮控制。点击“开始”订单号快速滚动；点击“停止”定格显示中奖订单。</td>
+            </tr>
+            <tr>
+                <td>中奖逻辑</td>
+                <td><span class="tag tag-p0">P0</span></td>
+                <td>从“未中奖”的订单池中随机抽取1个。中奖后，该订单号状态更新为“已中奖”，不可再次被抽出。</td>
+            </tr>
+            <tr>
+                <td>中奖展示</td>
+                <td><span class="tag tag-p0">P0</span></td>
+                <td>中奖号码需高亮放大显示，配合特效（如礼花）。</td>
+            </tr>
+        </table>
+
+        <h3>3.3 H5 查询页面</h3>
+        <table>
+            <tr>
+                <th>功能点</th>
+                <th>优先级</th>
+                <th>详细描述</th>
+            </tr>
+            <tr>
+                <td>查询入口</td>
+                <td><span class="tag tag-p0">P0</span></td>
+                <td>简洁的输入框，提示“请输入您的订单号”，以及“查询”按钮。</td>
+            </tr>
+            <tr>
+                <td>查询反馈</td>
+                <td><span class="tag tag-p0">P0</span></td>
+                <td>
+                    根据订单状态返回不同结果：<br>
+                    1. <strong>订单不存在</strong>：提示“未找到该订单，请核对后重试”。<br>
+                    2. <strong>未中奖</strong>：提示“很遗憾，您未中奖，感谢参与”。<br>
+                    3. <strong>已中奖</strong>：提示“恭喜！您的订单已中奖！”。
+                </td>
+            </tr>
+            <tr>
+                <td>中奖信息登记</td>
+                <td><span class="tag tag-p0">P0</span></td>
+                <td>
+                    当查询结果为“已中奖”时，展示信息登记表单，包含：<br>
+                    1. <strong>姓名</strong>（必填）<br>
+                    2. <strong>电话</strong>（必填，需格式校验）<br>
+                    提交后提示“登记成功，请等待工作人员联系”。
+                </td>
+            </tr>
+            <tr>
+                <td>社群引流</td>
+                <td><span class="tag tag-p0">P0</span></td>
+                <td>页面底部固定展示活动说明文案及社群二维码图片，引导用户长按识别进群。</td>
+            </tr>
+        </table>
+
+        <h3>3.4 中奖用户信息管理 (后台)</h3>
+        <table>
+            <tr>
+                <th>功能点</th>
+                <th>优先级</th>
+                <th>详细描述</th>
+            </tr>
+            <tr>
+                <td>中奖名单列表</td>
+                <td><span class="tag tag-p0">P0</span></td>
+                <td>展示所有中奖订单号及用户提交的姓名、电话信息。</td>
+            </tr>
+            <tr>
+                <td>数据导出</td>
+                <td><span class="tag tag-p1">P1</span></td>
+                <td>支持将中奖名单及用户信息导出为 Excel/CSV 格式，便于后续联系发奖。</td>
+            </tr>
+        </table>
+
+        <h2>4. 界面原型示意</h2>
+
+        <h3>4.1 H5 查询页布局</h3>
+        <div class="mockup">
++-----------------------------------+
+|          陶喆活动抽奖查询         |
++-----------------------------------+
+|                                   |
+|       [ logo / banner ]           |
+|                                   |
+|   +---------------------------+   |
+|   |   请输入订单号...         |   |
+|   +---------------------------+   |
+|                                   |
+|        [   立即查询   ]           |
+|                                   |
+|   -----------------------------   |
+|   查询结果显示区域：              |
+|   "已中奖"                        |
+|   [ 输入姓名 ]                    |
+|   [ 输入电话 ]                    |
+|   [ 提交登记 ]                    |
+|                                   |
+|   =============================   |
+|   [ 社群活动文案说明... ]         |
+|                                   |
+|        +-------------+            |
+|        |  二维码图片 |            |
+|        +-------------+            |
+|        扫码加入粉丝群             |
+|                                   |
++-----------------------------------+
+        </div>
+
+        <h2>5. 非功能需求</h2>
+        <ul>
+            <li><strong>兼容性</strong>：H5页面需适配主流手机浏览器及微信内置浏览器。</li>
+            <li><strong>性能</strong>：抽奖动画需流畅（60fps），查询接口响应时间 < 200ms。</li>
+            <li><strong>安全性</strong>：防止恶意刷接口（虽然是查询，但需简单的频率限制）。</li>
+        </ul>
+
+    </div>
+</body>
+</html>
