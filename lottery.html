@@ -5,10 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>陶喆订单抽奖 - 直播抽奖端</title>
     <style>
+        /* 统一滚动条样式优化 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(241, 196, 15, 0.3);
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+            transition: all 0.3s;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(241, 196, 15, 0.6);
+            background-clip: content-box;
+        }
+
+        /* 针对 history-box 特别优化 */
+        .history-box::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .history-box::-webkit-scrollbar-thumb {
+            background: rgba(241, 196, 15, 0.4);
+            background-clip: content-box;
+        }
+
+        html {
+            overflow-y: scroll; /* 强制显示滚动条，防止页面抖动 */
+            overflow-x: hidden; /* 强制隐藏横向滚动条 */
+        }
+
         body {
             margin: 0;
             padding: 0;
-            overflow-y: auto;
+            /* overflow-y: auto; 已在 html 中强制开启 */
             font-family: "Microsoft YaHei", sans-serif;
             background: linear-gradient(135deg, #134E5E, #71B280); /* 绿色系配色 */
             color: #fff;
@@ -161,73 +200,6 @@
             to { transform: translateY(100vh) rotate(720deg); }
         }
 
-        /* 登录遮罩样式 */
-        .login-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(15px);
-        }
-
-        .login-box {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 40px;
-            border-radius: 15px;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
-            width: 300px;
-        }
-
-        .login-box h2 {
-            margin-top: 0;
-            color: #f1c40f;
-            margin-bottom: 20px;
-        }
-
-        .login-input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            border: none;
-            outline: none;
-            font-size: 1rem;
-            background: rgba(255, 255, 255, 0.9);
-            box-sizing: border-box; /* 确保padding不撑大宽度 */
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            background: #f1c40f;
-            color: #c0392b;
-            font-weight: bold;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .login-btn:hover {
-            background: #f39c12;
-        }
-
-        .login-error {
-            color: #e74c3c;
-            margin-top: 15px;
-            font-size: 0.9rem;
-            display: none;
-        }
-
         /* 中奖记录样式 */
         .history-container {
             width: 90%;
@@ -246,7 +218,7 @@
             font-size: 1rem;
             border: 1px solid rgba(255, 255, 255, 0.1);
             max-height: 200px;
-            overflow-y: auto;
+            overflow-y: scroll;
             width: 350px; 
             text-align: left;
             backdrop-filter: blur(5px);
@@ -279,18 +251,6 @@
 
     <div class="header">陶喆订单抽奖活动</div>
 
-    <!-- 登录遮罩层 -->
-    <div id="loginOverlay" class="login-overlay">
-        <div class="login-box">
-            <h2>系统登录</h2>
-            <p>请输入操作密码以进入抽奖系统</p>
-            <input type="password" id="passwordInput" placeholder="请输入密码" class="login-input">
-            <button id="loginBtn" class="login-btn">进入系统</button>
-            <div id="loginError" class="login-error">密码错误，请重试</div>
-            <p style="font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-top: 15px;">测试密码：XLP123</p>
-        </div>
-    </div>
-
     <div class="lottery-box">
         <div style="font-size: 1.2rem; opacity: 0.8; margin-bottom: 10px;">幸运订单号</div>
         <div class="number-display" id="display">LOADING...</div>
@@ -304,7 +264,6 @@
         <div class="history-box">
             <div class="history-title">
                 <span>中奖记录</span>
-                <span style="font-size: 0.8rem; font-weight: normal; opacity: 0.7;">(最近10条)</span>
             </div>
             <div id="historyList">
                 <div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.3); font-size: 0.9rem;">
@@ -468,7 +427,7 @@
             "202601124730203667", "202601124730203667", "202601124730203667", "202601124730203667", "202601124730203667", 
             "202601124730203667", "202601124730203667", "202601124730203667", "202601124730203667", "202601124730203667", 
             "202601124730203667", "202601124730203667", "202601124730203667", "202601124730203667", "202601124730203667", 
-            "202601124730203667", "202601124730203667", "5006439504494325040", "5006439504494325040", "3376429003310572", "QQ2026011310534917997", "4988637576904234841", 
+            "5006439504494325040", "5006439504494325040", "3376429003310572", "QQ2026011310534917997", "4988637576904234841", 
             "6923579529330261774", "5009223529947767011", "QQ2026011410494519415", "QQ2026011410494519412", "WY2026011421200520157", 
             "3185084785698478284", "5011136211826827226", "5011473638721228047", "8001191617478344", "3188769205818755794", 
             "QQ2026011710350723423", "QQ2026011710351423456", "QQ2026011710351423456", "5017160342580328347", "5018048317308192320", 
@@ -627,47 +586,11 @@
         btn.addEventListener('click', toggleLottery);
         
         document.addEventListener('keydown', (e) => {
-            // 只有登录后才允许空格控制
-            const overlay = document.getElementById('loginOverlay');
-            if (overlay.style.display !== 'none') {
-                if (e.key === 'Enter') {
-                    handleLogin();
-                }
-                return;
-            }
-
             if (e.code === 'Space') {
                 e.preventDefault(); // 防止页面滚动
                 toggleLottery();
             }
         });
-
-        // 登录逻辑
-        const loginBtn = document.getElementById('loginBtn');
-        const passwordInput = document.getElementById('passwordInput');
-        const loginOverlay = document.getElementById('loginOverlay');
-        const loginError = document.getElementById('loginError');
-
-        function handleLogin() {
-            const pwd = passwordInput.value;
-            if (pwd === 'XLP123') {
-                loginOverlay.style.display = 'none';
-            } else {
-                loginError.style.display = 'block';
-                // 抖动效果
-                const box = document.querySelector('.login-box');
-                box.animate([
-                    { transform: 'translateX(0)' },
-                    { transform: 'translateX(-10px)' },
-                    { transform: 'translateX(10px)' },
-                    { transform: 'translateX(0)' }
-                ], {
-                    duration: 300
-                });
-            }
-        }
-
-        loginBtn.addEventListener('click', handleLogin);
 
         // 添加中奖记录
         function addToHistory(number) {
@@ -701,8 +624,8 @@
                 item.style.transform = 'translateX(0)';
             }, 50);
 
-            // 保持最近10条
-            if (list.children.length > 10) {
+            // 保持最近1000条
+            if (list.children.length > 1000) {
                 list.removeChild(list.lastChild);
             }
         }
