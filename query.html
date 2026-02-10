@@ -7,6 +7,7 @@
     <style>
         * {
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         /* 统一滚动条样式优化 */
@@ -38,8 +39,8 @@
         }
 
         body {
-            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-            background-color: #f8f9fa;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f0f2f5;
             margin: 0;
             padding: 0;
             color: #333;
@@ -49,152 +50,212 @@
         }
         
         .header {
-            background: linear-gradient(135deg, #134E5E, #71B280);
+            background: linear-gradient(135deg, #134E5E 0%, #71B280 100%);
             color: white;
-            padding: 30px 20px;
+            padding: 40px 20px 60px 20px; /* 底部增加padding，为卡片腾出空间 */
             text-align: center;
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            box-shadow: 0 10px 20px rgba(19, 78, 94, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* 增加装饰性背景 */
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            transform: rotate(30deg);
         }
         
         .header h1 {
             margin: 0;
-            font-size: 1.5rem;
-            font-weight: bold;
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .header p {
             margin: 10px 0 0;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             opacity: 0.9;
+            position: relative;
+            z-index: 2;
         }
 
         .container {
             flex: 1;
-            padding: 20px;
-            max-width: 600px;
+            padding: 0 20px 20px;
+            max-width: 500px;
             margin: 0 auto;
             width: 100%;
+            position: relative;
+            z-index: 5;
         }
 
         .card {
             background: white;
-            border-radius: 12px;
-            padding: 25px 20px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
-            margin-top: -20px;
+            border-radius: 20px;
+            padding: 30px 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+            margin-top: -40px; /* 向上浮动，覆盖Header */
             text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
         }
 
         .input-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             text-align: left;
         }
         
         .input-group label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #555;
-            font-size: 0.9rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #444;
+            font-size: 0.95rem;
         }
 
         input[type="text"], input[type="tel"] {
             width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            padding: 14px 16px;
+            border: 2px solid #eef0f2;
+            border-radius: 12px;
             font-size: 1rem;
             outline: none;
-            transition: border-color 0.2s;
+            transition: all 0.3s ease;
+            background-color: #f9fbfc;
         }
         
         input[type="text"]:focus, input[type="tel"]:focus {
             border-color: #134E5E;
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(19, 78, 94, 0.1);
         }
 
         .btn {
             width: 100%;
-            padding: 12px;
-            background-color: #134E5E;
+            padding: 14px;
+            background: linear-gradient(to right, #134E5E, #3b8d5f);
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: bold;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(19, 78, 94, 0.3);
         }
         
         .btn:active {
-            background-color: #0e3d4a;
+            transform: scale(0.98);
+            box-shadow: 0 2px 10px rgba(19, 78, 94, 0.2);
         }
 
         .result-area {
-            margin-top: 25px;
-            padding-top: 25px;
-            border-top: 1px dashed #eee;
-            display: none; /* 默认隐藏 */
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px dashed #f0f0f0;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .status-icon {
-            font-size: 3rem;
-            margin-bottom: 10px;
+            font-size: 3.5rem;
+            margin-bottom: 15px;
             display: block;
+            line-height: 1;
         }
 
         .status-text {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-bottom: 10px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
         }
 
         .status-desc {
-            color: #777;
+            color: #888;
             font-size: 0.9rem;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            line-height: 1.5;
         }
 
         /* 状态样式 */
         .status-success { color: #27ae60; }
-        .status-fail { color: #7f8c8d; }
+        .status-fail { color: #95a5a6; }
         .status-error { color: #e74c3c; }
 
         .winner-form {
             text-align: left;
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
+            background-color: #f0fdf4; /* 浅绿色背景 */
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border: 1px solid #dcfce7;
+        }
+        
+        .winner-form .input-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        .winner-form .btn {
+            margin-top: 10px;
+            background: #27ae60;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
         }
 
         .community-section {
             margin-top: 30px;
             text-align: center;
-            padding: 20px;
+            padding: 25px;
             background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        
+        .community-section h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
         }
         
         .qrcode-placeholder {
-            width: 150px;
-            height: 150px;
-            background-color: #eee;
-            margin: 15px auto;
+            width: 160px;
+            height: 160px;
+            background: #f8f9fa;
+            border: 2px dashed #e9ecef;
+            border-radius: 12px;
+            margin: 20px auto;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #999;
-            font-size: 0.8rem;
+            color: #adb5bd;
+            font-size: 0.85rem;
         }
 
         .footer-info {
             text-align: center;
             font-size: 0.8rem;
-            color: #999;
-            padding: 20px 0;
+            color: #aaa;
+            padding: 30px 0;
         }
     </style>
 </head>
@@ -220,16 +281,16 @@
         </div>
 
         <div class="community-section">
-            <h3 style="margin-top: 0; color: #333;">加入陶喆粉丝社群</h3>
-            <p style="color: #666; font-size: 0.9rem;">获取最新活动资讯，不错过每一份福利！</p>
+            <h3>加入陶喆粉丝社群</h3>
+            <p style="color: #7f8c8d; font-size: 0.9rem; margin: 5px 0 0;">获取最新活动资讯，不错过每一份福利！</p>
             <div class="qrcode-placeholder">
                 [二维码图片占位]
             </div>
-            <p style="font-size: 0.8rem; color: #999;">长按识别二维码加入</p>
+            <p style="font-size: 0.8rem; color: #95a5a6;">长按识别二维码加入</p>
         </div>
 
         <div class="footer-info">
-            
+            &copy; 2025 陶喆巡回演唱会活动组
         </div>
     </div>
 
@@ -259,7 +320,7 @@
                 html = `
                     <div class="status-icon status-success">🎉</div>
                     <div class="status-text status-success">恭喜！您已中奖！</div>
-                    <div class="status-desc">请填写下方信息以便我们为您发放奖品</div>
+                    <div class="status-desc">太棒了！您是今天的幸运儿！<br>请立即填写下方信息领取奖品</div>
                     
                     <div class="winner-form">
                         <div class="input-group">
@@ -278,14 +339,14 @@
                 html = `
                     <div class="status-icon status-fail">😔</div>
                     <div class="status-text status-fail">很遗憾，未中奖</div>
-                    <div class="status-desc">感谢您的参与，请继续关注我们的后续活动。</div>
+                    <div class="status-desc">别灰心，好运也许就在下一次！<br>感谢您的参与。</div>
                 `;
             } else {
                 // 订单不存在
                 html = `
                     <div class="status-icon status-error">⚠️</div>
                     <div class="status-text status-error">未找到该订单</div>
-                    <div class="status-desc">请核对订单号是否输入正确。</div>
+                    <div class="status-desc">系统未查询到该订单号，<br>请核对后再次尝试。</div>
                 `;
             }
 
