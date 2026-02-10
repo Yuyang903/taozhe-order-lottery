@@ -245,9 +245,93 @@
             color: rgba(255,255,255,0.6);
             margin-left: 10px;
         }
+
+        /* 登录遮罩层样式 */
+        #loginOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #134E5E, #71B280);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .login-box {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 300px;
+        }
+
+        .login-title {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            box-sizing: border-box;
+            outline: none;
+            text-align: center;
+        }
+
+        .login-input:focus {
+            box-shadow: 0 0 0 3px rgba(241, 196, 15, 0.5);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: #f1c40f;
+            color: #134E5E;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .login-btn:hover {
+            background: #f39c12;
+            transform: translateY(-2px);
+        }
+
+        .login-hint {
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
+
+    <!-- 登录遮罩层 -->
+    <div id="loginOverlay">
+        <div class="login-box">
+            <div class="login-title">系统登录</div>
+            <input type="password" id="passwordInput" class="login-input" placeholder="请输入访问密码">
+            <button class="login-btn" onclick="checkLogin()">进入系统</button>
+            <div class="login-hint">测试密码：XLP123</div>
+        </div>
+    </div>
 
     <div class="header">陶喆订单抽奖活动</div>
 
@@ -278,6 +362,33 @@
     </div>
 
     <script>
+        // 登录验证逻辑
+        function checkLogin() {
+            const pwd = document.getElementById('passwordInput').value;
+            if (pwd === 'XLP123') {
+                document.getElementById('loginOverlay').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loginOverlay').style.display = 'none';
+                }, 500);
+            } else {
+                alert('密码错误，请重新输入');
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('passwordInput').focus();
+            }
+        }
+
+        // 监听回车键登录
+        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkLogin();
+            }
+        });
+
+        // 页面加载时聚焦密码框
+        window.onload = function() {
+            document.getElementById('passwordInput').focus();
+        }
+
         // 真实订单数据
         const orders = [
             "3033722460673542283", "4850600868329906741", "WY2025110113152101135", "4851223272596307624", "WY2025110117072101626", 
@@ -376,7 +487,6 @@
             "3345410004944027", "4940510043126507243", "3732926189092881664", "3732926189092881664", "3732926189092881664", 
             "1276182", "3119622925099667956", "3119622925099667956", "3119622925099667956", "3119622925099667956", 
             "3119622925099667956", "3119622925099667956", "3119622925099667956", "3119622925099667956", "3119622925099667956", 
-            "3119622925099667956", "3119622925099667956", "3119622925099667956", "3119622925099667956", "3119622925099667956", 
             "3119622925099667956", "3119622925099667956", "3119622925099667956", "3119622925099667956", "QQ2025121312434919046", 
             "369101", "3120160332723991494", "WY2025121314304319325", "848684", "848684", 
             "848684", "848684", "848684", "848684", "848684", 
@@ -443,6 +553,8 @@
             "KG2026012401100133810", "5030515730520985311", "3388454005666846", "WY2026012412291235469", "3204168351722592972", 
             "5031616718843990214", "5032254999715923235", "WY2026012509173237030", "QQ2026012513263937474", "5033847890153742906", 
             "WY2026012518184438018", "3208383625762328582", "QQ2026012610565338855", "202601260480174251", "202601260480174251", 
+            "202601260480174251", "202601260480174251", "202601260480174251", "202601260480174251", "202601260480174251", 
+            "202601260480174251", "202601260480174251", "202601260480174251", "202601260480174251", "202601260480174251", 
             "202601260480174251", "202601260480174251", "202601260480174251", "202601260480174251", "202601260480174251", 
             "202601260480174251", "202601260480174251", "202601260480174251", "202601260480174251", "202601260480174251", 
             "202601260480174251", "202601260480174251", "202601260480174251", "202601260480174251", "202601260480174251", 
@@ -588,6 +700,10 @@
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space') {
                 e.preventDefault(); // 防止页面滚动
+                // 如果登录遮罩层还在显示，不触发抽奖
+                if (document.getElementById('loginOverlay').style.display !== 'none') {
+                    return;
+                }
                 toggleLottery();
             }
         });
