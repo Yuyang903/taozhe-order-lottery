@@ -674,7 +674,8 @@
                 const targetY = -(targetIndex * lineHeight);
                 
                 strip.style.transform = `translateY(${targetY}em)`;
-                strip.style.transition = `transform 0.5s cubic-bezier(0.1, 0.7, 0.1, 1) ${index * 0.05}s`;
+                // 缩短动画时间和间隔，以匹配0.5秒的总等待时间
+                strip.style.transition = `transform 0.3s cubic-bezier(0.1, 0.7, 0.1, 1) ${index * 0.01}s`;
             });
 
             // 动画结束后添加闪烁特效
@@ -683,7 +684,7 @@
                 createConfetti();
                 // 记录中奖信息
                 addToHistory(winningNumber);
-            }, MAX_LEN * 50 + 500);
+            }, 500); // 缩短到0.5秒
         }
 
         function toggleLottery() {
