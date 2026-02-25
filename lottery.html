@@ -140,7 +140,8 @@
         .btn {
             background: linear-gradient(to bottom, #f1c40f, #f39c12);
             border: none;
-            padding: 15px 50px;
+            padding: 15px 0; /* 修改为上下padding，左右由width控制 */
+            width: 260px;    /* 固定宽度 */
             font-size: 1.5rem;
             font-weight: bold;
             color: #c0392b;
@@ -149,6 +150,7 @@
             box-shadow: 0 4px 0 #d35400, 0 5px 10px rgba(0,0,0,0.3);
             transition: all 0.1s;
             outline: none;
+            text-align: center; /* 确保文字居中 */
         }
 
         .btn:active {
@@ -177,7 +179,7 @@
         /* 中奖特效动画 */
         @keyframes pulse {
             0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            50% { transform: scale(1.05); } /* 减小放大倍数 */
             100% { transform: scale(1); }
         }
 
