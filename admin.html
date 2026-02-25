@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>陶喆订单抽奖 - 管理后台</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #1abc9c;
+            --accent-color: #e74c3c;
+            --text-color: #333;
+            --bg-color: #f4f6f9;
+            --sidebar-width: 250px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* 登录遮罩 */
+        #loginOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(44, 62, 80, 0.95);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            width: 350px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .login-box h2 {
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .login-btn:hover {
+            background-color: #16a085;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100%;
+            left: 0;
+            top: 0;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h3 {
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            list-style: none;
+            padding: 20px 0;
+            flex: 1;
+        }
+
+        .nav-item {
+            padding: 15px 25px;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background-color: rgba(255,255,255,0.05);
+            border-left-color: var(--secondary-color);
+        }
+
+        .nav-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .user-info {
+            padding: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 14px;
+            color: rgba(255,255,255,0.6);
+            text-align: center;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 30px;
+            transition: margin 0.3s;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        /* 卡片样式 */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stat-info h4 {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .stat-info .value {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .stat-icon {
+            font-size: 40px;
+            opacity: 0.2;
+            color: var(--primary-color);
+        }
+
+        /* 面板样式 */
+        .panel {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            padding: 25px;
+            margin-bottom: 30px;
+            display: none; /* 默认隐藏，通过JS控制显示 */
+        }
+
+        .panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary { background: var(--secondary-color); color: white; }
+        .btn-danger { background: var(--accent-color); color: white; }
+        .btn-outline { border: 1px solid #ddd; background: transparent; color: #666; }
+        
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        /* 表格样式 */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            font-weight: 600;
+            color: #7f8c8d;
+            background-color: #f8f9fa;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .status-active { background: #e8f8f5; color: #1abc9c; }
+        .status-used { background: #fef9e7; color: #f1c40f; }
+        .status-invalid { background: #fdedec; color: #e74c3c; }
+
+    </style>
+</head>
+<body>
+
+    <!-- 登录层 -->
+    <div id="loginOverlay">
+        <div class="login-box">
+            <h2>后台管理系统</h2>
+            <input type="password" id="adminPwd" class="login-input" placeholder="请输入管理员密码">
+            <button class="login-btn" onclick="adminLogin()">登录</button>
+            <div style="margin-top: 15px; color: #999; font-size: 12px;">测试密码: XLP123</div>
+        </div>
+    </div>
+
+    <!-- 侧边栏 -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>TaoZhe Lottery</h3>
+            <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">Admin Dashboard</div>
+        </div>
+        <ul class="nav-links">
+            <li class="nav-item active" onclick="switchTab('overview', this)">
+                <i>📊</i> 概览统计
+            </li>
+            <li class="nav-item" onclick="switchTab('orders', this)">
+                <i>📝</i> 订单管理
+            </li>
+            <li class="nav-item" onclick="switchTab('winners', this)">
+                <i>🏆</i> 中奖名单
+            </li>
+            <li class="nav-item" onclick="switchTab('settings', this)">
+                <i>⚙️</i> 系统设置
+            </li>
+        </ul>
+        <div class="user-info">
+            <div>管理员: Admin</div>
+            <div style="margin-top: 5px; cursor: pointer; color: #e74c3c;" onclick="location.reload()">[退出登录]</div>
+        </div>
+    </div>
+
+    <!-- 主内容 -->
+    <div class="main-content">
+        <div class="header">
+            <div class="page-title" id="pageTitle">概览统计</div>
+            <div>
+                <button class="btn btn-outline" onclick="alert('数据已刷新')">🔄 刷新数据</button>
+            </div>
+        </div>
+
+        <!-- 概览面板 -->
+        <div id="panel-overview" class="panel active">
+            <div class="card-grid">
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h4>总导入订单</h4>
+                        <div class="value">584</div>
+                    </div>
+                    <div class="stat-icon">📦</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h4>已产生中奖</h4>
+                        <div class="value">12</div>
+                    </div>
+                    <div class="stat-icon">🎉</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h4>剩余库存</h4>
+                        <div class="value">88</div>
+                    </div>
+                    <div class="stat-icon">🎁</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h4>今日访问量</h4>
+                        <div class="value">1,205</div>
+                    </div>
+                    <div class="stat-icon">👁️</div>
+                </div>
+            </div>
+
+            <div class="panel-header">
+                <h3>最近活动日志</h3>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>时间</th>
+                            <th>操作人</th>
+                            <th>事件</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2026-02-25 14:30:00</td>
+                            <td>System</td>
+                            <td>系统自动备份</td>
+                            <td><span class="status-badge status-active">成功</span></td>
+                        </tr>
+                        <tr>
+                            <td>2026-02-25 14:15:22</td>
+                            <td>Admin</td>
+                            <td>导出中奖名单</td>
+                            <td><span class="status-badge status-active">成功</span></td>
+                        </tr>
+                        <tr>
+                            <td>2026-02-25 10:00:00</td>
+                            <td>Admin</td>
+                            <td>导入订单数据 (orders_v2.csv)</td>
+                            <td><span class="status-badge status-active">成功</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 订单管理面板 -->
+        <div id="panel-orders" class="panel">
+            <div class="panel-header">
+                <h3>订单数据库</h3>
+                <div>
+                    <button class="btn btn-outline">📥 下载模板</button>
+                    <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">📤 导入数据</button>
+                    <input type="file" id="fileInput" hidden onchange="alert('演示模式：文件上传模拟成功！')">
+                </div>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <input type="text" placeholder="搜索订单号..." style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 250px;">
+                <button class="btn btn-primary">搜索</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>订单号</th>
+                            <th>来源</th>
+                            <th>导入时间</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderTableBody">
+                        <!-- JS 填充 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 中奖名单面板 -->
+        <div id="panel-winners" class="panel">
+            <div class="panel-header">
+                <h3>中奖名单记录</h3>
+                <button class="btn btn-primary" onclick="alert('正在导出 Excel...')">📊 导出 Excel</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>中奖时间</th>
+                            <th>中奖订单号</th>
+                            <th>奖品等级</th>
+                            <th>状态</th>
+                            <th>核销操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2026-02-25 12:00:01</td>
+                            <td>3033722460673542283</td>
+                            <td>一等奖</td>
+                            <td><span class="status-badge status-used">未核销</span></td>
+                            <td><button class="btn btn-primary" style="padding: 4px 8px; font-size: 12px;">核销</button></td>
+                        </tr>
+                        <tr>
+                            <td>2026-02-25 11:30:45</td>
+                            <td>4850600868329906741</td>
+                            <td>二等奖</td>
+                            <td><span class="status-badge status-active">已核销</span></td>
+                            <td><button class="btn btn-outline" style="padding: 4px 8px; font-size: 12px;" disabled>已完成</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 设置面板 -->
+        <div id="panel-settings" class="panel">
+            <div class="panel-header">
+                <h3>全局设置</h3>
+                <button class="btn btn-primary" onclick="alert('设置已保存')">💾 保存更改</button>
+            </div>
+            
+            <div style="max-width: 600px;">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 10px; font-weight: 600;">活动标题</label>
+                    <input type="text" value="陶喆订单抽奖活动" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 10px; font-weight: 600;">抽奖模式</label>
+                    <select style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        <option>随机抽取</option>
+                        <option>指定奖池</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" checked style="margin-right: 10px;">
+                        启用中奖音效
+                    </label>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" checked style="margin-right: 10px;">
+                        启用礼花特效
+                    </label>
+                </div>
+
+                <div style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">
+                    <h4 style="color: #e74c3c; margin-bottom: 15px;">危险区域</h4>
+                    <button class="btn btn-danger" onclick="confirm('确定要清空所有中奖记录吗？此操作不可恢复！') ? alert('已清空') : null">🗑️ 清空所有中奖记录</button>
+                    <button class="btn btn-danger" style="margin-left: 10px;" onclick="confirm('确定要重置所有订单状态吗？') ? alert('已重置') : null">🔄 重置订单状态</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // 模拟数据
+        const mockOrders = [
+            { id: 1, no: "3033722460673542283", source: "System Import", time: "2026-02-25 10:00", status: "Used" },
+            { id: 2, no: "4850600868329906741", source: "System Import", time: "2026-02-25 10:00", status: "Used" },
+            { id: 3, no: "WY2025110113152101135", source: "API Sync", time: "2026-02-25 10:05", status: "Normal" },
+            { id: 4, no: "4851223272596307624", source: "API Sync", time: "2026-02-25 10:05", status: "Normal" },
+            { id: 5, no: "WY2025110117072101626", source: "Manual Add", time: "2026-02-25 11:20", status: "Normal" },
+        ];
+
+        // 登录逻辑
+        function adminLogin() {
+            const pwd = document.getElementById('adminPwd').value;
+            if (pwd === 'XLP123') {
+                document.getElementById('loginOverlay').style.display = 'none';
+                initData();
+            } else {
+                alert('密码错误');
+            }
+        }
+
+        document.getElementById('adminPwd').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') adminLogin();
+        });
+
+        // 切换标签页
+        function switchTab(tabId, element) {
+            // 更新导航状态
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+
+            // 更新页面标题
+            const titles = {
+                'overview': '概览统计',
+                'orders': '订单管理',
+                'winners': '中奖名单',
+                'settings': '系统设置'
+            };
+            document.getElementById('pageTitle').textContent = titles[tabId];
+
+            // 切换面板显示
+            document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
+            document.getElementById('panel-' + tabId).classList.add('active');
+        }
+
+        // 初始化数据
+        function initData() {
+            const tbody = document.getElementById('orderTableBody');
+            let html = '';
+            mockOrders.forEach(order => {
+                const statusClass = order.status === 'Used' ? 'status-used' : 'status-active';
+                const statusText = order.status === 'Used' ? '已中奖' : '待抽奖';
+                
+                html += `
+                    <tr>
+                        <td>${order.id}</td>
+                        <td style="font-family: monospace;">${order.no}</td>
+                        <td>${order.source}</td>
+                        <td>${order.time}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>
+                            <button class="btn btn-outline" style="padding: 2px 6px; font-size: 12px;">编辑</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            // 填充更多行以演示表格样式
+            for(let i=6; i<=15; i++) {
+                html += `
+                    <tr>
+                        <td>${i}</td>
+                        <td style="font-family: monospace;">MOCK-ORDER-${Math.random().toString(36).substr(2, 9).toUpperCase()}</td>
+                        <td>Auto Gen</td>
+                        <td>2026-02-25 12:00</td>
+                        <td><span class="status-badge status-active">待抽奖</span></td>
+                        <td><button class="btn btn-outline" style="padding: 2px 6px; font-size: 12px;">编辑</button></td>
+                    </tr>
+                `;
+            }
+            tbody.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
