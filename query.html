@@ -298,6 +298,56 @@
     </div>
 
     <script>
+        function submitWinnerInfo(btn) {
+            // 获取表单内的输入框
+            const form = btn.parentElement;
+            const inputs = form.querySelectorAll('input');
+            
+            // 简单校验
+            let isValid = true;
+            inputs.forEach(input => {
+                if (!input.value.trim()) {
+                    isValid = false;
+                    input.style.borderColor = '#e74c3c';
+                } else {
+                    input.style.borderColor = '#eef0f2';
+                }
+            });
+
+            if (!isValid) {
+                alert('请填写完整信息');
+                return;
+            }
+
+            // 1. 将输入框调整为不可编辑样式
+            inputs.forEach(input => {
+                input.disabled = true;
+                // 自定义样式以显得更美观
+                input.style.backgroundColor = 'transparent';
+                input.style.border = 'none';
+                input.style.paddingLeft = '0';
+                input.style.fontWeight = 'bold';
+                input.style.color = '#2c3e50';
+                // 移除 placeholder 以防干扰
+                input.placeholder = '';
+            });
+
+            // 2. 隐藏提交按钮
+            btn.style.display = 'none';
+
+            // 3. 显示成功提示（替代 alert，或者在下方显示）
+            const successMsg = document.createElement('div');
+            successMsg.style.color = '#27ae60';
+            successMsg.style.marginTop = '15px';
+            successMsg.style.fontWeight = 'bold';
+            successMsg.style.textAlign = 'center';
+            successMsg.innerHTML = '✅ 信息提交成功！请保持电话畅通。';
+            form.appendChild(successMsg);
+            
+            // 也可以保留 alert 提示
+            alert('提交成功！请保持电话畅通。');
+        }
+
         function checkOrder() {
             const orderNo = document.getElementById('orderNo').value.trim();
             const resultArea = document.getElementById('resultArea');
@@ -334,7 +384,7 @@
                             <label>联系电话</label>
                             <input type="tel" placeholder="请输入您的手机号码">
                         </div>
-                        <button class="btn" onclick="alert('提交成功！请保持电话畅通。')">提交登记</button>
+                        <button class="btn" onclick="submitWinnerInfo(this)">提交登记</button>
                     </div>
                 `;
             } else if (orderNo === '000') {
