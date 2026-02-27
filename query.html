@@ -274,7 +274,7 @@
             </div>
             <button class="btn" onclick="checkOrder()">立即查询</button>
             <p style="margin-top: 15px; font-size: 0.85rem; color: #999;">
-                测试订单号：有效：888，无效：000，不存在：其他号码
+                * 数据实时同步自抽奖系统
             </p>
 
             <!-- 查询结果区域 -->
@@ -298,6 +298,46 @@
     </div>
 
     <script>
+        // 全局数据缓存
+        let globalOrders = new Set();
+        let globalWinners = new Set();
+        let isLoading = false;
+
+        // 初始化数据
+        async function initData() {
+            isLoading = true;
+            try {
+                // 并行加载数据
+                const [ordersRes, winnersRes] = await Promise.all([
+                    fetch('/api/get_orders'),
+                    fetch('/api/get_winners')
+                ]);
+
+                if (ordersRes.ok) {
+                    const orders = await ordersRes.json();
+                    globalOrders = new Set(orders);
+                }
+                
+                if (winnersRes.ok) {
+                    const winners = await winnersRes.json();
+                    // 存储中奖订单号
+                    globalWinners = new Set(winners.map(w => w.no));
+                }
+
+            } catch (e) {
+                console.error('Data load failed', e);
+                // 仅在首次加载失败时提示，避免干扰
+                if (globalOrders.size === 0) {
+                    // alert('连接服务器失败，无法查询实时数据');
+                }
+            } finally {
+                isLoading = false;
+            }
+        }
+
+        // 页面加载时初始化
+        window.onload = initData;
+
         function submitWinnerInfo(btn) {
             // 获取表单内的输入框
             const form = btn.parentElement;
@@ -348,7 +388,7 @@
             alert('提交成功！请保持电话畅通。');
         }
 
-        function checkOrder() {
+        async function checkOrder() {
             const orderNo = document.getElementById('orderNo').value.trim();
             const resultArea = document.getElementById('resultArea');
             
@@ -357,19 +397,29 @@
                 return;
             }
 
-            // 模拟查询逻辑
-            // 实际开发中应调用后端 API
+            // 查询前先刷新一下数据，确保中奖状态最新
+            // 显示加载中状态
+            const btn = document.querySelector('.card > .btn');
+            const originalBtnText = btn.textContent;
+            btn.textContent = '查询中...';
+            btn.disabled = true;
+
+            try {
+                await initData();
+            } catch (e) {
+                console.error("Refresh failed", e);
+            } finally {
+                btn.textContent = originalBtnText;
+                btn.disabled = false;
+            }
+
             resultArea.style.display = 'block';
             
             let html = '';
 
-            // 模拟三种状态：
-            // 1. 中奖 (输入 "888" 模拟)
-            // 2. 未中奖 (输入 "000" 模拟)
-            // 3. 不存在 (其他)
-            
-            if (orderNo === '888') {
-                // 中奖状态
+            // 逻辑判断
+            if (globalWinners.has(orderNo)) {
+                // 1. 中奖
                 html = `
                     <div class="status-icon status-success">🎉</div>
                     <div class="status-text status-success">恭喜！您已中奖！</div>
@@ -387,22 +437,22 @@
                         <button class="btn" onclick="submitWinnerInfo(this)">提交登记</button>
                     </div>
                 `;
-            } else if (orderNo === '000') {
-                // 未中奖状态
+            } else if (globalOrders.has(orderNo)) {
+                // 2. 有效但未中奖
                 html = `
                     <div class="status-icon status-fail">😔</div>
                     <div class="status-text status-fail">很遗憾，未中奖</div>
-                    <div class="status-desc">别灰心，好运也许就在下一次！<br>感谢您的参与。</div>
+                    <div class="status-desc">您的订单号有效，但本次未被抽中。<br>别灰心，好运也许就在下一次！<br>感谢您的参与。</div>
                 `;
             } else {
-                // 订单不存在
+                // 3. 订单不存在
                 html = `
                     <div class="status-icon status-error">⚠️</div>
                     <div class="status-text status-error">未找到该订单</div>
-                    <div class="status-desc">系统未查询到该订单号，<br>请核对后再次尝试。</div>
+                    <div class="status-desc">系统未查询到该订单号 (${orderNo})，<br>请核对后再次尝试。<br>如有疑问请联系客服。</div>
                 `;
             }
-
+            
             resultArea.innerHTML = html;
         }
     </script>
