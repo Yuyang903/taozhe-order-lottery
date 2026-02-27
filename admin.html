@@ -232,6 +232,7 @@
             cursor: pointer;
             font-size: 14px;
             transition: all 0.2s;
+            margin-left: 5px;
         }
 
         .btn-primary { background: var(--secondary-color); color: white; }
@@ -243,6 +244,8 @@
         /* 表格样式 */
         .table-container {
             overflow-x: auto;
+            max-height: 600px;
+            overflow-y: auto;
         }
 
         table {
@@ -260,6 +263,9 @@
             font-weight: 600;
             color: #7f8c8d;
             background-color: #f8f9fa;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
         tr:hover {
@@ -275,6 +281,27 @@
         .status-active { background: #e8f8f5; color: #1abc9c; }
         .status-used { background: #fef9e7; color: #f1c40f; }
         .status-invalid { background: #fdedec; color: #e74c3c; }
+
+        textarea.code-input {
+            width: 100%;
+            height: 300px;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: vertical;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+        
+        /* 搜索框 */
+        .search-box {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 250px;
+            margin-right: 10px;
+        }
 
     </style>
 </head>
@@ -300,8 +327,11 @@
             <li class="nav-item active" onclick="switchTab('overview', this)">
                 <i>📊</i> 概览统计
             </li>
+            <li class="nav-item" onclick="switchTab('import', this)">
+                <i>📥</i> 导入订单
+            </li>
             <li class="nav-item" onclick="switchTab('orders', this)">
-                <i>📝</i> 订单管理
+                <i>📝</i> 订单数据库
             </li>
             <li class="nav-item" onclick="switchTab('winners', this)">
                 <i>🏆</i> 中奖名单
@@ -321,7 +351,8 @@
         <div class="header">
             <div class="page-title" id="pageTitle">概览统计</div>
             <div>
-                <button class="btn btn-outline" onclick="alert('数据已刷新')">🔄 刷新数据</button>
+                <button class="btn btn-outline" onclick="initData()">🔄 刷新数据</button>
+                <a href="lottery.html" target="_blank"><button class="btn btn-primary">📺 打开抽奖端</button></a>
             </div>
         </div>
 
@@ -330,101 +361,81 @@
             <div class="card-grid">
                 <div class="stat-card">
                     <div class="stat-info">
-                        <h4>总导入订单</h4>
-                        <div class="value">584</div>
+                        <h4>总订单数</h4>
+                        <div class="value" id="stat-total">--</div>
                     </div>
                     <div class="stat-icon">📦</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-info">
-                        <h4>已产生中奖</h4>
-                        <div class="value">12</div>
+                        <h4>已中奖</h4>
+                        <div class="value" id="stat-winners">--</div>
                     </div>
                     <div class="stat-icon">🎉</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-info">
                         <h4>剩余库存</h4>
-                        <div class="value">88</div>
+                        <div class="value" id="stat-remain">--</div>
                     </div>
                     <div class="stat-icon">🎁</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-info">
-                        <h4>今日访问量</h4>
-                        <div class="value">1,205</div>
-                    </div>
-                    <div class="stat-icon">👁️</div>
                 </div>
             </div>
 
             <div class="panel-header">
-                <h3>最近活动日志</h3>
+                <h3>系统说明</h3>
             </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>时间</th>
-                            <th>操作人</th>
-                            <th>事件</th>
-                            <th>状态</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>2026-02-25 14:30:00</td>
-                            <td>System</td>
-                            <td>系统自动备份</td>
-                            <td><span class="status-badge status-active">成功</span></td>
-                        </tr>
-                        <tr>
-                            <td>2026-02-25 14:15:22</td>
-                            <td>Admin</td>
-                            <td>导出中奖名单</td>
-                            <td><span class="status-badge status-active">成功</span></td>
-                        </tr>
-                        <tr>
-                            <td>2026-02-25 10:00:00</td>
-                            <td>Admin</td>
-                            <td>导入订单数据 (orders_v2.csv)</td>
-                            <td><span class="status-badge status-active">成功</span></td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div style="padding: 20px; line-height: 1.8; color: #666;">
+                <p>1. <b>导入订单</b>：在"导入订单"页面批量粘贴订单号，点击导入追加到数据库。</p>
+                <p>2. <b>订单数据库</b>：查看所有订单状态，"已中奖"表示已被抽中。</p>
+                <p>3. <b>中奖名单</b>：查看详细的中奖记录和时间。</p>
+                <p>4. <b>数据同步</b>：所有操作通过本地服务器API (python server.py) 进行，确保数据实时同步。</p>
             </div>
         </div>
 
-        <!-- 订单管理面板 -->
+        <!-- 导入面板 -->
+        <div id="panel-import" class="panel">
+            <div class="panel-header">
+                <h3>批量导入新订单</h3>
+            </div>
+            <p style="margin-bottom: 10px; color: #666;">请在此处粘贴新的订单号，每行一个。系统会自动追加到现有数据库。</p>
+            <textarea id="importInput" class="code-input" placeholder="3033722460673542283
+4850600868329906741
+..."></textarea>
+            
+            <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="color: #7f8c8d; font-size: 14px;">
+                    识别行数: <span id="importLineCount">0</span>
+                </div>
+                <button class="btn btn-primary" onclick="submitImport()">🚀 确认导入</button>
+            </div>
+        </div>
+
+        <!-- 订单数据库面板 -->
         <div id="panel-orders" class="panel">
             <div class="panel-header">
                 <h3>订单数据库</h3>
                 <div>
-                    <button class="btn btn-outline">📥 下载模板</button>
-                    <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">📤 导入数据</button>
-                    <input type="file" id="fileInput" hidden onchange="alert('演示模式：文件上传模拟成功！')">
+                    <input type="text" id="searchInput" class="search-box" placeholder="搜索订单号..." onkeyup="filterOrders()">
+                    <!-- <button class="btn btn-primary" onclick="filterOrders()">搜索</button> -->
                 </div>
             </div>
-            <div style="margin-bottom: 15px;">
-                <input type="text" placeholder="搜索订单号..." style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 250px;">
-                <button class="btn btn-primary">搜索</button>
-            </div>
             <div class="table-container">
-                <table>
+                <table id="ordersTable">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>序号</th>
                             <th>订单号</th>
-                            <th>来源</th>
-                            <th>导入时间</th>
                             <th>状态</th>
-                            <th>操作</th>
                         </tr>
                     </thead>
                     <tbody id="orderTableBody">
-                        <!-- JS 填充 -->
+                        <tr><td colspan="3" style="text-align:center;">加载中...</td></tr>
                     </tbody>
                 </table>
+            </div>
+            <div style="margin-top: 10px; text-align: right; color: #999; font-size: 12px;">
+                * 仅展示前 2000 条记录以保证性能
             </div>
         </div>
 
@@ -432,34 +443,20 @@
         <div id="panel-winners" class="panel">
             <div class="panel-header">
                 <h3>中奖名单记录</h3>
-                <button class="btn btn-primary" onclick="alert('正在导出 Excel...')">📊 导出 Excel</button>
+                <button class="btn btn-primary" onclick="alert('功能开发中...')">📊 导出 Excel</button>
             </div>
             <div class="table-container">
                 <table>
                     <thead>
                         <tr>
+                            <th>中奖序号</th>
                             <th>中奖时间</th>
                             <th>中奖订单号</th>
-                            <th>奖品等级</th>
                             <th>状态</th>
-                            <th>核销操作</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>2026-02-25 12:00:01</td>
-                            <td>3033722460673542283</td>
-                            <td>一等奖</td>
-                            <td><span class="status-badge status-used">未核销</span></td>
-                            <td><button class="btn btn-primary" style="padding: 4px 8px; font-size: 12px;">核销</button></td>
-                        </tr>
-                        <tr>
-                            <td>2026-02-25 11:30:45</td>
-                            <td>4850600868329906741</td>
-                            <td>二等奖</td>
-                            <td><span class="status-badge status-active">已核销</span></td>
-                            <td><button class="btn btn-outline" style="padding: 4px 8px; font-size: 12px;" disabled>已完成</button></td>
-                        </tr>
+                    <tbody id="winnerTableBody">
+                        <!-- JS 填充 -->
                     </tbody>
                 </table>
             </div>
@@ -477,33 +474,9 @@
                     <label style="display: block; margin-bottom: 10px; font-weight: 600;">活动标题</label>
                     <input type="text" value="陶喆订单抽奖活动" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
                 </div>
-
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 10px; font-weight: 600;">抽奖模式</label>
-                    <select style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
-                        <option>随机抽取</option>
-                        <option>指定奖池</option>
-                    </select>
-                </div>
-
-                <div style="margin-bottom: 20px;">
-                    <label style="display: flex; align-items: center; cursor: pointer;">
-                        <input type="checkbox" checked style="margin-right: 10px;">
-                        启用中奖音效
-                    </label>
-                </div>
-
-                <div style="margin-bottom: 20px;">
-                    <label style="display: flex; align-items: center; cursor: pointer;">
-                        <input type="checkbox" checked style="margin-right: 10px;">
-                        启用礼花特效
-                    </label>
-                </div>
-
                 <div style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">
                     <h4 style="color: #e74c3c; margin-bottom: 15px;">危险区域</h4>
-                    <button class="btn btn-danger" onclick="confirm('确定要清空所有中奖记录吗？此操作不可恢复！') ? alert('已清空') : null">🗑️ 清空所有中奖记录</button>
-                    <button class="btn btn-danger" style="margin-left: 10px;" onclick="confirm('确定要重置所有订单状态吗？') ? alert('已重置') : null">🔄 重置订单状态</button>
+                    <button class="btn btn-danger" onclick="resetWinners()">🗑️ 清空所有中奖记录</button>
                 </div>
             </div>
         </div>
@@ -511,14 +484,9 @@
     </div>
 
     <script>
-        // 模拟数据
-        const mockOrders = [
-            { id: 1, no: "3033722460673542283", source: "System Import", time: "2026-02-25 10:00", status: "Used" },
-            { id: 2, no: "4850600868329906741", source: "System Import", time: "2026-02-25 10:00", status: "Used" },
-            { id: 3, no: "WY2025110113152101135", source: "API Sync", time: "2026-02-25 10:05", status: "Normal" },
-            { id: 4, no: "4851223272596307624", source: "API Sync", time: "2026-02-25 10:05", status: "Normal" },
-            { id: 5, no: "WY2025110117072101626", source: "Manual Add", time: "2026-02-25 11:20", status: "Normal" },
-        ];
+        // 全局数据缓存
+        let globalOrders = [];
+        let globalWinners = [];
 
         // 登录逻辑
         function adminLogin() {
@@ -544,7 +512,8 @@
             // 更新页面标题
             const titles = {
                 'overview': '概览统计',
-                'orders': '订单管理',
+                'import': '导入订单',
+                'orders': '订单数据库',
                 'winners': '中奖名单',
                 'settings': '系统设置'
             };
@@ -553,44 +522,188 @@
             // 切换面板显示
             document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
             document.getElementById('panel-' + tabId).classList.add('active');
+
+            // 如果切换到数据相关tab，刷新一下
+            if (['overview', 'orders', 'winners'].includes(tabId)) {
+                initData(); // 简单起见，每次切换都刷新
+            }
         }
 
+        // 监听导入输入框行数变化
+        document.getElementById('importInput').addEventListener('input', function() {
+            const text = this.value;
+            const lines = text.split('\n').filter(line => line.trim() !== '');
+            document.getElementById('importLineCount').textContent = lines.length;
+        });
+
         // 初始化数据
-        function initData() {
+        async function initData() {
+            try {
+                // 并行加载数据
+                const [ordersRes, winnersRes] = await Promise.all([
+                    fetch('/api/get_orders'),
+                    fetch('/api/get_winners')
+                ]);
+
+                if (ordersRes.ok) globalOrders = await ordersRes.json();
+                if (winnersRes.ok) globalWinners = await winnersRes.json();
+
+                renderOverview();
+                renderOrdersTable();
+                renderWinnersTable();
+
+            } catch (e) {
+                console.error('Data load failed', e);
+                // alert('数据加载失败，请确保 server.py 已运行');
+            }
+        }
+
+        function renderOverview() {
+            document.getElementById('stat-total').textContent = globalOrders.length;
+            document.getElementById('stat-winners').textContent = globalWinners.length;
+            document.getElementById('stat-remain').textContent = Math.max(0, globalOrders.length - globalWinners.length);
+        }
+
+        function renderOrdersTable() {
             const tbody = document.getElementById('orderTableBody');
+            const search = document.getElementById('searchInput').value.trim().toLowerCase();
+            
+            // 创建中奖Set以便快速查找
+            const winnerSet = new Set(globalWinners.map(w => w.no));
+            
             let html = '';
-            mockOrders.forEach(order => {
-                const statusClass = order.status === 'Used' ? 'status-used' : 'status-active';
-                const statusText = order.status === 'Used' ? '已中奖' : '待抽奖';
+            let count = 0;
+            
+            // 倒序显示，新的在前面
+            for (let i = globalOrders.length - 1; i >= 0; i--) {
+                const orderNo = globalOrders[i];
                 
+                // 搜索过滤
+                if (search && !orderNo.toLowerCase().includes(search)) continue;
+
+                // 限制显示数量
+                if (count >= 2000) break;
+
+                const isWon = winnerSet.has(orderNo);
+                const statusHtml = isWon 
+                    ? '<span class="status-badge status-used">已中奖</span>' 
+                    : '<span class="status-badge status-active">待抽奖</span>';
+                
+                // 标记行样式
+                const rowStyle = isWon ? 'background-color: #fef9e7;' : '';
+
+                html += `
+                    <tr style="${rowStyle}">
+                        <td>${i + 1}</td>
+                        <td style="font-family: monospace;">${orderNo}</td>
+                        <td>${statusHtml}</td>
+                    </tr>
+                `;
+                count++;
+            }
+            
+            if (count === 0) {
+                html = '<tr><td colspan="3" style="text-align:center; color:#999;">无数据</td></tr>';
+            }
+            
+            tbody.innerHTML = html;
+        }
+
+        function filterOrders() {
+            renderOrdersTable();
+        }
+
+        function renderWinnersTable() {
+            const tbody = document.getElementById('winnerTableBody');
+            let html = '';
+            
+            // 倒序显示
+            globalWinners.slice().reverse().forEach((w, index) => {
                 html += `
                     <tr>
-                        <td>${order.id}</td>
-                        <td style="font-family: monospace;">${order.no}</td>
-                        <td>${order.source}</td>
-                        <td>${order.time}</td>
-                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                        <td>
-                            <button class="btn btn-outline" style="padding: 2px 6px; font-size: 12px;">编辑</button>
-                        </td>
+                        <td>${globalWinners.length - index}</td>
+                        <td>${w.time}</td>
+                        <td style="font-family: monospace; font-weight:bold;">${w.no}</td>
+                        <td><span class="status-badge status-used">已派发</span></td>
                     </tr>
                 `;
             });
-            // 填充更多行以演示表格样式
-            for(let i=6; i<=15; i++) {
-                html += `
-                    <tr>
-                        <td>${i}</td>
-                        <td style="font-family: monospace;">MOCK-ORDER-${Math.random().toString(36).substr(2, 9).toUpperCase()}</td>
-                        <td>Auto Gen</td>
-                        <td>2026-02-25 12:00</td>
-                        <td><span class="status-badge status-active">待抽奖</span></td>
-                        <td><button class="btn btn-outline" style="padding: 2px 6px; font-size: 12px;">编辑</button></td>
-                    </tr>
-                `;
+
+            if (globalWinners.length === 0) {
+                html = '<tr><td colspan="4" style="text-align:center; color:#999;">暂无中奖记录</td></tr>';
             }
+
             tbody.innerHTML = html;
         }
+
+        // 提交导入
+        async function submitImport() {
+            // 检查协议
+            if (window.location.protocol === 'file:') {
+                alert('错误：检测到您正在直接打开 HTML 文件 (file://)。\n请必须通过 http://localhost:8000/admin.html 访问后台，否则无法连接服务器API。');
+                return;
+            }
+
+            const text = document.getElementById('importInput').value;
+            const lines = text.split('\n').map(line => line.trim()).filter(line => line !== '');
+            
+            if (lines.length === 0) {
+                alert('请输入订单号');
+                return;
+            }
+
+            const btn = document.querySelector('#panel-import button.btn-primary');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = '导入中...';
+
+            try {
+                const res = await fetch('/api/append_orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(lines)
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    alert(`成功导入 ${data.added} 条订单！`);
+                    document.getElementById('importInput').value = '';
+                    document.getElementById('importLineCount').textContent = '0';
+                    // 切换到概览
+                    switchTab('overview', document.querySelectorAll('.nav-item')[0]);
+                } else {
+                    const errText = await res.text();
+                    alert('导入失败: 服务器返回错误 ' + res.status + '\n' + errText);
+                }
+            } catch (e) {
+                console.error(e);
+                alert('连接服务器失败！\n请检查：\n1. server.py 是否正在运行？\n2. 浏览器地址栏是否为 http://localhost:8000/...\n3. 详细错误: ' + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        }
+
+        // 重置中奖
+        async function resetWinners() {
+            if (!confirm('警告：确定要清空所有中奖记录吗？此操作不可恢复！\n(订单池数据将保留)')) return;
+            
+            try {
+                const res = await fetch('/api/reset_winners', { method: 'POST' });
+                if (res.ok) {
+                    alert('已重置');
+                    initData();
+                } else {
+                    alert('重置失败');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('操作失败');
+            }
+        }
+
+        // 初始加载
+        // initData(); 由登录触发
     </script>
 </body>
 </html>
