@@ -294,6 +294,45 @@
             font-size: 14px;
         }
         
+        /* 模态框 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 600px;
+            max-width: 90%;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
         /* 搜索框 */
         .search-box {
             padding: 8px;
@@ -303,6 +342,54 @@
             margin-right: 10px;
         }
 
+        /* 分页控件 */
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .page-info {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .page-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .page-btn {
+            padding: 5px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            background: #f8f9fa;
+            border-color: #ccc;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .page-input {
+            width: 50px;
+            padding: 5px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -327,11 +414,8 @@
             <li class="nav-item active" onclick="switchTab('overview', this)">
                 <i>📊</i> 概览统计
             </li>
-            <li class="nav-item" onclick="switchTab('import', this)">
-                <i>📥</i> 导入订单
-            </li>
             <li class="nav-item" onclick="switchTab('orders', this)">
-                <i>📝</i> 订单数据库
+                <i>📝</i> 订单池
             </li>
             <li class="nav-item" onclick="switchTab('winners', this)">
                 <i>🏆</i> 中奖名单
@@ -393,31 +477,13 @@
             </div>
         </div>
 
-        <!-- 导入面板 -->
-        <div id="panel-import" class="panel">
-            <div class="panel-header">
-                <h3>批量导入新订单</h3>
-            </div>
-            <p style="margin-bottom: 10px; color: #666;">请在此处粘贴新的订单号，每行一个。系统会自动追加到现有数据库。</p>
-            <textarea id="importInput" class="code-input" placeholder="3033722460673542283
-4850600868329906741
-..."></textarea>
-            
-            <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
-                <div style="color: #7f8c8d; font-size: 14px;">
-                    识别行数: <span id="importLineCount">0</span>
-                </div>
-                <button class="btn btn-primary" onclick="submitImport()">🚀 确认导入</button>
-            </div>
-        </div>
-
-        <!-- 订单数据库面板 -->
+        <!-- 订单池面板 -->
         <div id="panel-orders" class="panel">
             <div class="panel-header">
-                <h3>订单数据库</h3>
+                <h3>订单池</h3>
                 <div>
                     <input type="text" id="searchInput" class="search-box" placeholder="搜索订单号..." onkeyup="filterOrders()">
-                    <!-- <button class="btn btn-primary" onclick="filterOrders()">搜索</button> -->
+                    <button class="btn btn-primary" onclick="showImportModal()">📥 导入订单</button>
                 </div>
             </div>
             <div class="table-container">
@@ -434,8 +500,42 @@
                     </tbody>
                 </table>
             </div>
-            <div style="margin-top: 10px; text-align: right; color: #999; font-size: 12px;">
-                * 仅展示前 2000 条记录以保证性能
+            
+            <!-- 分页控件 -->
+            <div class="pagination" id="paginationControls" style="display:none;">
+                <div class="page-info">
+                    共 <span id="totalItems">0</span> 条，第 <span id="currPageDisplay">1</span>/<span id="totalPages">1</span> 页
+                </div>
+                <div class="page-controls">
+                    <button class="page-btn" onclick="changePage(-1)" id="prevBtn">上一页</button>
+                    <input type="number" class="page-input" id="jumpPageInput" min="1" onkeypress="if(event.keyCode==13) jumpToPage()">
+                    <button class="page-btn" onclick="jumpToPage()">跳转</button>
+                    <button class="page-btn" onclick="changePage(1)" id="nextBtn">下一页</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 导入模态框 -->
+        <div id="importModal" class="modal-overlay">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3>批量导入新订单</h3>
+                    <button class="close-btn" onclick="hideImportModal()">×</button>
+                </div>
+                <p style="margin-bottom: 10px; color: #666;">请在此处粘贴新的订单号，每行一个。系统会自动过滤重复号码。</p>
+                <textarea id="importInput" class="code-input" placeholder="3033722460673542283
+4850600868329906741
+..."></textarea>
+                
+                <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="color: #7f8c8d; font-size: 14px;">
+                        识别行数: <span id="importLineCount">0</span>
+                    </div>
+                    <div>
+                        <button class="btn btn-outline" onclick="hideImportModal()">取消</button>
+                        <button class="btn btn-primary" onclick="submitImport()">🚀 确认导入</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -452,6 +552,8 @@
                             <th>中奖序号</th>
                             <th>中奖时间</th>
                             <th>中奖订单号</th>
+                            <th>姓名</th>
+                            <th>手机号</th>
                             <th>状态</th>
                         </tr>
                     </thead>
@@ -487,6 +589,38 @@
         // 全局数据缓存
         let globalOrders = [];
         let globalWinners = [];
+        
+        // 分页状态
+        let currentPage = 1;
+        const pageSize = 50; // 每页显示50条
+        let filteredOrders = []; // 搜索过滤后的数据
+
+        // 环境检测：如果是 GitHub Pages，提示用户
+        if (window.location.hostname.includes('github.io')) {
+            const warningDiv = document.createElement('div');
+            warningDiv.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.85); z-index: 10000; color: white;
+                display: flex; flex-direction: column; align-items: center; justify-content: center;
+                text-align: center; padding: 20px;
+            `;
+            warningDiv.innerHTML = `
+                <div style="background: #2c3e50; padding: 40px; border-radius: 10px; max-width: 500px; border: 1px solid #e74c3c;">
+                    <h2 style="color: #e74c3c; margin-bottom: 20px;">⚠️ 运行环境错误</h2>
+                    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                        检测到您正在 <b>GitHub Pages</b> 上访问此页面。
+                    </p>
+                    <p style="text-align: left; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 5px; font-size: 14px;">
+                        <b>原因：</b>GitHub Pages 是静态托管服务，<b>无法运行 Python 后端程序</b>，因此无法使用“导入订单”、“保存数据”等功能。<br><br>
+                        <b>解决方案：</b><br>
+                        1. 请在您的电脑上运行 <code>server.py</code><br>
+                        2. 访问 <a href="http://localhost:8000/admin.html" style="color: #3498db;">http://localhost:8000/admin.html</a>
+                    </p>
+                    <button onclick="this.parentElement.parentElement.style.display='none'" style="margin-top: 20px; padding: 10px 30px; background: #e74c3c; border: none; color: white; border-radius: 5px; cursor: pointer;">我知道了 (仅预览界面)</button>
+                </div>
+            `;
+            document.body.appendChild(warningDiv);
+        }
 
         // 登录逻辑
         function adminLogin() {
@@ -512,8 +646,7 @@
             // 更新页面标题
             const titles = {
                 'overview': '概览统计',
-                'import': '导入订单',
-                'orders': '订单数据库',
+                'orders': '订单池',
                 'winners': '中奖名单',
                 'settings': '系统设置'
             };
@@ -523,10 +656,10 @@
             document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
             document.getElementById('panel-' + tabId).classList.add('active');
 
-            // 如果切换到数据相关tab，刷新一下
-            if (['overview', 'orders', 'winners'].includes(tabId)) {
-                initData(); // 简单起见，每次切换都刷新
-            }
+            // 优化：不再每次切换都强制刷新数据，依靠手动刷新或初始化加载
+            // if (['overview', 'orders', 'winners'].includes(tabId)) {
+            //    initData(); 
+            // }
         }
 
         // 监听导入输入框行数变化
@@ -564,53 +697,102 @@
             document.getElementById('stat-remain').textContent = Math.max(0, globalOrders.length - globalWinners.length);
         }
 
+        // 防抖函数
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        const filterOrdersDebounced = debounce(function() {
+            currentPage = 1; // 搜索时重置页码
+            renderOrdersTable();
+        }, 300);
+
+        function filterOrders() {
+            filterOrdersDebounced();
+        }
+
         function renderOrdersTable() {
             const tbody = document.getElementById('orderTableBody');
             const search = document.getElementById('searchInput').value.trim().toLowerCase();
-            
-            // 创建中奖Set以便快速查找
             const winnerSet = new Set(globalWinners.map(w => w.no));
             
-            let html = '';
-            let count = 0;
-            
-            // 倒序显示，新的在前面
-            for (let i = globalOrders.length - 1; i >= 0; i--) {
-                const orderNo = globalOrders[i];
-                
-                // 搜索过滤
-                if (search && !orderNo.toLowerCase().includes(search)) continue;
-
-                // 限制显示数量
-                if (count >= 2000) break;
-
-                const isWon = winnerSet.has(orderNo);
-                const statusHtml = isWon 
-                    ? '<span class="status-badge status-used">已中奖</span>' 
-                    : '<span class="status-badge status-active">待抽奖</span>';
-                
-                // 标记行样式
-                const rowStyle = isWon ? 'background-color: #fef9e7;' : '';
-
-                html += `
-                    <tr style="${rowStyle}">
-                        <td>${i + 1}</td>
-                        <td style="font-family: monospace;">${orderNo}</td>
-                        <td>${statusHtml}</td>
-                    </tr>
-                `;
-                count++;
+            // 1. 过滤数据
+            if (search) {
+                filteredOrders = globalOrders.filter(order => order.toLowerCase().includes(search));
+            } else {
+                // 默认倒序显示
+                filteredOrders = [...globalOrders].reverse();
             }
+
+            // 2. 计算分页
+            const total = filteredOrders.length;
+            const totalPages = Math.ceil(total / pageSize) || 1;
             
-            if (count === 0) {
+            // 修正当前页码
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, total);
+            const pageData = filteredOrders.slice(startIndex, endIndex);
+
+            // 3. 渲染表格
+            let html = '';
+            
+            if (total === 0) {
                 html = '<tr><td colspan="3" style="text-align:center; color:#999;">无数据</td></tr>';
+            } else {
+                pageData.forEach((orderNo, index) => {
+                    // 计算实际序号
+                    const displayIndex = startIndex + index + 1;
+
+                    const isWon = winnerSet.has(orderNo);
+                    const statusHtml = isWon 
+                        ? '<span class="status-badge status-used">已中奖</span>' 
+                        : '<span class="status-badge status-active">待抽奖</span>';
+                    
+                    const rowStyle = isWon ? 'background-color: #fef9e7;' : '';
+
+                    html += `
+                        <tr style="${rowStyle}">
+                            <td>${displayIndex}</td>
+                            <td style="font-family: monospace;">${orderNo}</td>
+                            <td>${statusHtml}</td>
+                        </tr>
+                    `;
+                });
             }
             
             tbody.innerHTML = html;
+
+            // 4. 更新分页控件
+            document.getElementById('paginationControls').style.display = 'flex';
+            document.getElementById('totalItems').textContent = total;
+            document.getElementById('currPageDisplay').textContent = currentPage;
+            document.getElementById('totalPages').textContent = totalPages;
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages;
+            document.getElementById('jumpPageInput').max = totalPages;
+            document.getElementById('jumpPageInput').value = currentPage;
         }
 
-        function filterOrders() {
+        // 分页操作
+        function changePage(delta) {
+            currentPage += delta;
             renderOrdersTable();
+        }
+
+        function jumpToPage() {
+            const input = document.getElementById('jumpPageInput');
+            let page = parseInt(input.value);
+            if (page) {
+                currentPage = page;
+                renderOrdersTable();
+            }
         }
 
         function renderWinnersTable() {
@@ -619,22 +801,42 @@
             
             // 倒序显示
             globalWinners.slice().reverse().forEach((w, index) => {
+                const name = w.name || '-';
+                const phone = w.phone || '-';
+                
                 html += `
                     <tr>
                         <td>${globalWinners.length - index}</td>
                         <td>${w.time}</td>
                         <td style="font-family: monospace; font-weight:bold;">${w.no}</td>
+                        <td>${name}</td>
+                        <td>${phone}</td>
                         <td><span class="status-badge status-used">已派发</span></td>
                     </tr>
                 `;
             });
 
             if (globalWinners.length === 0) {
-                html = '<tr><td colspan="4" style="text-align:center; color:#999;">暂无中奖记录</td></tr>';
+                html = '<tr><td colspan="6" style="text-align:center; color:#999;">暂无中奖记录</td></tr>';
             }
 
             tbody.innerHTML = html;
         }
+
+        // 模态框控制
+        function showImportModal() {
+            document.getElementById('importModal').style.display = 'flex';
+            document.getElementById('importInput').focus();
+        }
+
+        function hideImportModal() {
+            document.getElementById('importModal').style.display = 'none';
+        }
+
+        // 点击遮罩关闭
+        document.getElementById('importModal').addEventListener('click', function(e) {
+            if (e.target === this) hideImportModal();
+        });
 
         // 提交导入
         async function submitImport() {
@@ -652,7 +854,7 @@
                 return;
             }
 
-            const btn = document.querySelector('#panel-import button.btn-primary');
+            const btn = document.querySelector('#importModal button.btn-primary');
             const originalText = btn.textContent;
             btn.disabled = true;
             btn.textContent = '导入中...';
@@ -666,11 +868,12 @@
 
                 if (res.ok) {
                     const data = await res.json();
-                    alert(`成功导入 ${data.added} 条订单！`);
+                    alert(`导入完成！\n成功追加：${data.added} 条\n重复跳过：${lines.length - data.added} 条`);
                     document.getElementById('importInput').value = '';
                     document.getElementById('importLineCount').textContent = '0';
-                    // 切换到概览
-                    switchTab('overview', document.querySelectorAll('.nav-item')[0]);
+                    hideImportModal();
+                    // 刷新数据
+                    initData();
                 } else {
                     const errText = await res.text();
                     alert('导入失败: 服务器返回错误 ' + res.status + '\n' + errText);
