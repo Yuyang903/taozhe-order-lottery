@@ -359,33 +359,62 @@
                 return;
             }
 
-            // 1. 将输入框调整为不可编辑样式
-            inputs.forEach(input => {
-                input.disabled = true;
-                // 自定义样式以显得更美观
-                input.style.backgroundColor = 'transparent';
-                input.style.border = 'none';
-                input.style.paddingLeft = '0';
-                input.style.fontWeight = 'bold';
-                input.style.color = '#2c3e50';
-                // 移除 placeholder 以防干扰
-                input.placeholder = '';
-            });
-
             // 2. 隐藏提交按钮
-            btn.style.display = 'none';
+            const originalBtnText = btn.textContent;
+            btn.textContent = '提交中...';
+            btn.disabled = true;
 
-            // 3. 显示成功提示（替代 alert，或者在下方显示）
-            const successMsg = document.createElement('div');
-            successMsg.style.color = '#27ae60';
-            successMsg.style.marginTop = '15px';
-            successMsg.style.fontWeight = 'bold';
-            successMsg.style.textAlign = 'center';
-            successMsg.innerHTML = '✅ 信息提交成功！请保持电话畅通。';
-            form.appendChild(successMsg);
-            
-            // 也可以保留 alert 提示
-            alert('提交成功！请保持电话畅通。');
+            const name = inputs[0].value.trim();
+            const phone = inputs[1].value.trim();
+            const orderNo = document.getElementById('orderNo').value.trim();
+
+            // 提交到服务器
+            fetch('/api/update_winner_info', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    no: orderNo,
+                    name: name,
+                    phone: phone
+                })
+            })
+            .then(res => {
+                if (res.ok) {
+                    // 1. 将输入框调整为不可编辑样式
+                    inputs.forEach(input => {
+                        input.disabled = true;
+                        input.style.backgroundColor = 'transparent';
+                        input.style.border = 'none';
+                        input.style.paddingLeft = '0';
+                        input.style.fontWeight = 'bold';
+                        input.style.color = '#2c3e50';
+                        input.placeholder = '';
+                    });
+                    
+                    btn.style.display = 'none';
+
+                    // 3. 显示成功提示
+                    const successMsg = document.createElement('div');
+                    successMsg.style.color = '#27ae60';
+                    successMsg.style.marginTop = '15px';
+                    successMsg.style.fontWeight = 'bold';
+                    successMsg.style.textAlign = 'center';
+                    successMsg.innerHTML = '✅ 信息提交成功！请保持电话畅通。';
+                    form.appendChild(successMsg);
+                    
+                    alert('提交成功！请保持电话畅通。');
+                } else {
+                    alert('提交失败，请重试');
+                    btn.textContent = originalBtnText;
+                    btn.disabled = false;
+                }
+            })
+            .catch(e => {
+                console.error(e);
+                alert('网络错误，提交失败');
+                btn.textContent = originalBtnText;
+                btn.disabled = false;
+            });
         }
 
         async function checkOrder() {
