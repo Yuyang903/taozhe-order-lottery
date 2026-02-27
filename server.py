@@ -56,18 +56,21 @@ class LotteryHandler(http.server.SimpleHTTPRequestHandler):
 
                 current_orders = self.read_json_file(ORDERS_FILE, [])
                 
-                # Append and remove duplicates (optional, but good practice)
-                # For large datasets, set might be better, but list preserves order
-                # Let's just append for now to be fast, or use set to de-dupe
-                
-                # Simple append
-                current_orders.extend(new_orders)
+                # Append and remove duplicates
+                # Use set to filter existing orders
+                existing_set = set(current_orders)
+                added_count = 0
+                for order in new_orders:
+                    if order not in existing_set:
+                        current_orders.append(order)
+                        existing_set.add(order)
+                        added_count += 1
                 
                 # Write back
                 self.write_json_file(ORDERS_FILE, current_orders)
                 
-                self.send_response_json({'status': 'success', 'count': len(current_orders), 'added': len(new_orders)})
-                print(f"Appended {len(new_orders)} orders.")
+                self.send_response_json({'status': 'success', 'count': len(current_orders), 'added': added_count})
+                print(f"Appended {added_count} orders (Skipped {len(new_orders) - added_count} duplicates).")
                 
             except Exception as e:
                 self.send_error_json(str(e))
@@ -96,6 +99,38 @@ class LotteryHandler(http.server.SimpleHTTPRequestHandler):
             except Exception as e:
                 self.send_error_json(str(e))
                 
+        elif path == '/api/update_winner_info':
+            # Update winner info (name, phone)
+            try:
+                content_length = int(self.headers['Content-Length'])
+                post_data = self.rfile.read(content_length)
+                info = json.loads(post_data.decode('utf-8'))
+                
+                # Expecting {"no": "...", "name": "...", "phone": "..."}
+                if 'no' not in info:
+                    raise ValueError("Missing 'no' field")
+
+                winners = self.read_json_file(WINNERS_FILE, [])
+                
+                # Find and update
+                updated = False
+                for w in winners:
+                    if w['no'] == info['no']:
+                        w['name'] = info.get('name', '')
+                        w['phone'] = info.get('phone', '')
+                        updated = True
+                        break
+                
+                if updated:
+                    self.write_json_file(WINNERS_FILE, winners)
+                    self.send_response_json({'status': 'success'})
+                    print(f"Updated info for winner: {info['no']}")
+                else:
+                    self.send_error_json("Winner not found", 404)
+                
+            except Exception as e:
+                self.send_error_json(str(e))
+
         elif path == '/api/reset_winners':
              # Clear winners
             try:
