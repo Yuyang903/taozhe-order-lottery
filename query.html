@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>陶喆活动抽奖查询</title>
+    <title>2026陶喆《STUPID POP SONGS》签售会幸运抽奖</title>
     <style>
         * {
             box-sizing: border-box;
@@ -262,7 +262,7 @@
 <body>
 
     <div class="header">
-        <h1>抽奖结果查询</h1>
+        <h1>2026陶喆《STUPID POP SONGS》<br>签售会幸运抽奖</h1>
         <p>输入订单号，查询您的好运</p>
     </div>
 
@@ -274,7 +274,7 @@
             </div>
             <button class="btn" onclick="checkOrder()">立即查询</button>
             <p style="margin-top: 15px; font-size: 0.85rem; color: #999;">
-                * 数据实时同步自抽奖系统
+                888中奖000不中奖
             </p>
 
             <!-- 查询结果区域 -->
@@ -289,10 +289,10 @@
             <div class="qrcode-placeholder">
                 [二维码图片占位]
             </div>
-            <p style="font-size: 0.8rem; color: #95a5a6;">长按识别二维码加入</p>
+            <p style="font-size: 0.8rem; color: #95a5a6;">微信扫描二维码加入</p>
         </div>
 
-        <div class="footer-info">
+        <div class="footer-info" style="display:none;">
             &copy; 2025 陶喆巡回演唱会活动组
         </div>
     </div>
@@ -367,6 +367,36 @@
             const name = inputs[0].value.trim();
             const phone = inputs[1].value.trim();
             const orderNo = document.getElementById('orderNo').value.trim();
+
+            // 特殊处理测试号码 888
+            if (orderNo === '888') {
+                setTimeout(() => {
+                    // 1. 将输入框调整为不可编辑样式
+                    inputs.forEach(input => {
+                        input.disabled = true;
+                        input.style.backgroundColor = 'transparent';
+                        input.style.border = 'none';
+                        input.style.paddingLeft = '0';
+                        input.style.fontWeight = 'bold';
+                        input.style.color = '#2c3e50';
+                        input.placeholder = '';
+                    });
+                    
+                    btn.style.display = 'none';
+
+                    // 3. 显示成功提示
+                    const successMsg = document.createElement('div');
+                    successMsg.style.color = '#27ae60';
+                    successMsg.style.marginTop = '15px';
+                    successMsg.style.fontWeight = 'bold';
+                    successMsg.style.textAlign = 'center';
+                    successMsg.innerHTML = '✅ 信息提交成功！请保持电话畅通。';
+                    form.appendChild(successMsg);
+                    
+                    alert('提交成功！请保持电话畅通。');
+                }, 600);
+                return;
+            }
 
             // 提交到服务器
             fetch('/api/update_winner_info', {
@@ -447,7 +477,8 @@
             let html = '';
 
             // 逻辑判断
-            if (globalWinners.has(orderNo)) {
+            // 特殊测试号码：888 (中奖), 000 (未中奖)
+            if (orderNo === '888' || globalWinners.has(orderNo)) {
                 // 1. 中奖
                 html = `
                     <div class="status-icon status-success">🎉</div>
@@ -466,7 +497,7 @@
                         <button class="btn" onclick="submitWinnerInfo(this)">提交登记</button>
                     </div>
                 `;
-            } else if (globalOrders.has(orderNo)) {
+            } else if (orderNo === '000' || globalOrders.has(orderNo)) {
                 // 2. 有效但未中奖
                 html = `
                     <div class="status-icon status-fail">😔</div>
