@@ -479,6 +479,19 @@
         // 启动加载
         loadData();
 
+        // 环境检测：GitHub Pages 提示
+        if (window.location.hostname.includes('github.io')) {
+            const tip = document.createElement('div');
+            tip.style.cssText = `
+                position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
+                background: rgba(231, 76, 60, 0.9); color: white; padding: 10px 20px;
+                border-radius: 30px; font-size: 14px; z-index: 10000;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3); pointer-events: none;
+            `;
+            tip.innerHTML = '⚠️ GitHub Pages 仅供演示，中奖数据无法保存。请使用本地服务器运行。';
+            document.body.appendChild(tip);
+        }
+
         function startLottery() {
             if (isRunning) return;
             if (pool.length === 0) {
