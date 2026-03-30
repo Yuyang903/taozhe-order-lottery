@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>享乐派App_v1.0 - 首页原型 (高保真暗黑主题还原)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", STHeiti, "Microsoft Yahei", Tahoma, Simsun, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #e0e5ec;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* 模拟手机外壳 */
+        .device-frame {
+            width: 375px;
+            height: 812px;
+            background-color: #0b0c10; /* 更深的背景色以匹配首页设计稿 */
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+            border-radius: 40px;
+            border: 12px solid #000;
+        }
+
+        /* 底部 iOS 横条 */
+        .home-indicator {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 130px;
+            height: 4px;
+            background-color: #fff;
+            border-radius: 2px;
+            z-index: 20;
+        }
+
+        /* 顶部状态栏模拟 */
+        .status-bar {
+            height: 44px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 25px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+        
+        .status-bar svg {
+            stroke: #fff;
+        }
+
+        .notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 28px;
+            background-color: #000;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            z-index: 15;
+        }
+
+        /* 页面容器 */
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* 首页背景包含渐变光晕 */
+            background: linear-gradient(135deg, #0b0c10 0%, #111424 50%, #0b0c10 100%);
+            display: none;
+            flex-direction: column;
+            padding-top: 50px;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .page.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* 背景装饰元素 */
+        .bg-decor-1 {
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(74, 216, 219, 0.15) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .bg-decor-2 {
+            position: absolute;
+            bottom: 50px;
+            left: -100px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(82, 102, 255, 0.15) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        /* 笑脸装饰 */
+        .smile-decor {
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            width: 150px;
+            height: 150px;
+            z-index: 2;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        /* 顶部欢迎区 */
+        .header-section {
+            padding: 30px 30px 20px;
+            z-index: 3;
+            position: relative;
+        }
+
+        .notification-btn {
+            width: 36px;
+            height: 36px;
+            background-color: rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+            position: relative;
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 6px;
+            height: 6px;
+            background-color: #ff3b30;
+            border-radius: 50%;
+            border: 1px solid #17181c;
+        }
+
+        .welcome-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+            font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        .welcome-subtitle {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+            position: relative;
+            display: inline-block;
+        }
+
+        .welcome-subtitle::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 55px;
+            width: 45px;
+            height: 12px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20" preserveAspectRatio="none"><path d="M0,10 Q25,20 50,10 T100,0" fill="none" stroke="%234ad8db" stroke-width="4" stroke-linecap="round"/></svg>') no-repeat center;
+            background-size: 100% 100%;
+        }
+
+        /* 笑脸装饰及星星 */
+        .smile-decor-container {
+            position: absolute;
+            top: 50px;
+            right: 20px;
+            width: 150px;
+            height: 150px;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .smile-decor {
+            width: 100%;
+            height: 100%;
+            opacity: 0.15;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));
+        }
+
+        .star-decor-1 {
+            position: absolute;
+            top: 0;
+            right: 30px;
+            width: 20px;
+            height: 20px;
+            opacity: 0.5;
+        }
+
+        .star-decor-2 {
+            position: absolute;
+            top: 30px;
+            left: 20px;
+            width: 15px;
+            height: 15px;
+            opacity: 0.3;
+        }
+
+        /* 无收藏状态 */
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 3;
+            padding-bottom: 100px;
+        }
+
+        .empty-icon {
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            /* 模拟设计稿中的叠放卡片效果 */
+            box-shadow: 
+                -10px 10px 0 -2px rgba(255, 255, 255, 0.02),
+                -20px 20px 0 -4px rgba(255, 255, 255, 0.01);
+            transform: rotate(5deg);
+        }
+
+        .empty-icon svg {
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 16px;
+            color: #fff;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .empty-desc {
+            font-size: 13px;
+            color: #7a7a7d;
+        }
+
+        /* 专辑列表状态 */
+        .album-list-container {
+            flex: 1;
+            z-index: 3;
+            padding: 0 30px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end; /* 使画廊靠下 */
+            padding-bottom: 120px; /* 控制距离底部的距离 */
+        }
+
+        .album-count {
+            text-align: right;
+            color: #fff;
+            font-size: 16px;
+            margin-bottom: 5px;
+            font-weight: 600;
+            padding-right: 10px;
+        }
+
+        .album-count span {
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        /* 模拟 3D 画廊效果 */
+        .gallery-wrapper {
+            position: relative;
+            height: 380px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+        }
+
+        .album-card {
+            width: 280px;
+            height: 380px;
+            background: linear-gradient(180deg, #3a3b45 0%, #1e1f24 100%);
+            border-radius: 20px;
+            position: absolute;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.05);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 顶部文件夹标签样式及淡淡的英文文字 */
+        .album-card::before {
+            content: 'MY PRIVATE MUSIC COLLECTION';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 140px;
+            height: 30px;
+            background: inherit;
+            border-radius: 20px 20px 0 0;
+            transform: translateY(-100%);
+            color: rgba(255, 255, 255, 0.1);
+            font-size: 8px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            padding-left: 15px;
+            line-height: 1.1;
+        }
+
+        /* 选中状态卡片 */
+        .album-card.active {
+            transform: translateZ(0) translateX(0) translateY(0) rotate(0deg);
+            z-index: 3;
+            opacity: 1;
+        }
+
+        /* 左侧未选中卡片 */
+        .album-card.prev {
+            /* 扇形轨迹：向左移、向下沉、逆时针旋转 */
+            transform: translateZ(-100px) translateX(-160px) translateY(30px) rotate(-15deg);
+            z-index: 2;
+            opacity: 0.6;
+            filter: blur(2px);
+            cursor: pointer;
+        }
+
+        /* 右侧未选中卡片 */
+        .album-card.next {
+            /* 扇形轨迹：向右移、向下沉、顺时针旋转 */
+            transform: translateZ(-100px) translateX(160px) translateY(30px) rotate(15deg);
+            z-index: 2;
+            opacity: 0.6;
+            filter: blur(2px);
+            cursor: pointer;
+        }
+
+        .album-cover-wrapper {
+            padding: 15px;
+            height: 250px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .album-cover {
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+            object-fit: cover;
+            background-color: #ccc; /* 占位色 */
+            background-image: url('./陶喆封面图.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* 陶喆专辑特有涂鸦装饰 */
+        .album-graffiti {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .album-info {
+            padding: 0 15px 15px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .album-tags {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .album-tag {
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .tag-physical {
+            color: #4ad8db;
+            border-color: #4ad8db;
+        }
+
+        .tag-digital {
+            color: #92e52b;
+            border-color: #92e52b;
+        }
+
+        .album-name {
+            color: #fff;
+            font-size: 22px;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+            letter-spacing: 0.5px;
+        }
+
+        .album-artist {
+            color: #e0e5ec;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        /* 底部导航栏 */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            background: rgba(23, 24, 28, 0.9);
+            backdrop-filter: blur(20px);
+            border-top-left-radius: 30px;
+            border-top-right-radius: 30px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 20px 10px;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
+            color: #7a7a7d;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .nav-item.active {
+            color: #4ad8db;
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .nav-item.active .nav-icon {
+            stroke: #4ad8db;
+        }
+
+        /* 中间添加按钮 */
+        .add-btn-wrapper {
+            position: relative;
+            top: -20px;
+            width: 70px;
+            height: 70px;
+            background-color: #17181c;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 -5px 10px rgba(0,0,0,0.1);
+        }
+
+        .add-btn {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #5df2d6, #1c7fff);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-size: 32px;
+            font-weight: 300;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(41, 128, 255, 0.4);
+            transition: transform 0.2s;
+        }
+
+        .add-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 弹窗遮罩层 */
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+            display: none;
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 2000;
+            border-radius: 40px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+        }
+
+        /* 添加选项弹窗 (底部升起) */
+        .action-sheet {
+            width: 100%;
+            background: #202126;
+            border-top-left-radius: 30px;
+            border-top-right-radius: 30px;
+            padding: 30px 20px 40px;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+        }
+
+        .modal-overlay.show .action-sheet {
+            transform: translateY(0);
+        }
+
+        .action-sheet-title {
+            color: #fff;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .action-sheet-subtitle {
+            color: #7a7a7d;
+            font-size: 13px;
+            margin-bottom: 30px;
+        }
+
+        .action-options {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 40px;
+        }
+
+        .action-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .action-icon-box {
+            width: 80px;
+            height: 80px;
+            background-color: #2b2c31;
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 12px;
+            color: #fff;
+            font-weight: bold;
+            font-size: 24px;
+            transition: background-color 0.2s;
+        }
+
+        .action-option:active .action-icon-box {
+            background-color: #3c3d42;
+        }
+
+        .action-icon-box svg {
+            stroke: #fff;
+            stroke-width: 2;
+            fill: none;
+            width: 32px;
+            height: 32px;
+        }
+
+        .action-text {
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .close-btn-bottom {
+            width: 50px;
+            height: 50px;
+            background-color: #2b2c31;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto;
+            cursor: pointer;
+        }
+
+        .close-btn-bottom svg {
+            stroke: #fff;
+            stroke-width: 2.5;
+            width: 20px;
+            height: 20px;
+        }
+
+        /* 添加成功弹窗 (居中弹出) */
+        .success-modal-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .success-modal {
+            width: 300px;
+            background: #fff;
+            border-radius: 30px;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform: scale(0.9);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: visible;
+        }
+
+        .success-modal-container.show .success-modal {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        /* 成功弹窗顶部装饰背景 */
+        .success-header-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            background: linear-gradient(135deg, #a8ffeb 0%, #d4ffea 100%);
+            border-top-left-radius: 30px;
+            border-top-right-radius: 30px;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        /* 棋盘格纹理 */
+        .success-header-bg::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(45deg, rgba(255,255,255,0.4) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.4) 75%, rgba(255,255,255,0.4)),
+                linear-gradient(45deg, rgba(255,255,255,0.4) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.4) 75%, rgba(255,255,255,0.4));
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+        }
+
+        /* 成功徽章 */
+        .success-badge {
+            position: absolute;
+            top: -20px;
+            right: 20px;
+            width: 80px;
+            height: 80px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%23fff"/><circle cx="50" cy="50" r="35" fill="%2317181c"/><path d="M40 55 L48 63 L65 40" stroke="%23fff" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>') no-repeat center;
+            background-size: contain;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2));
+            z-index: 10;
+        }
+
+        .success-title {
+            font-size: 24px;
+            font-weight: 900;
+            color: #17181c;
+            margin-bottom: 20px;
+            align-self: flex-start;
+            z-index: 1;
+        }
+
+        .success-album-cover {
+            width: 200px;
+            height: 200px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .success-album-cover .album-cover {
+            border-radius: 16px;
+        }
+
+        .success-album-name {
+            font-size: 18px;
+            font-weight: 800;
+            color: #17181c;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .btn-outline-white {
+            width: 80%;
+            height: 50px;
+            border: 2px solid #fff;
+            background: transparent;
+            color: #fff;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .btn-outline-white:active {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* 吐司提示 */
+        .toast {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255,255,255,0.9);
+            color: #17181c;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+            z-index: 3000;
+            white-space: nowrap;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="device-frame">
+    <div class="notch"></div>
+    <div class="status-bar">
+        <span id="clock">17:47</span>
+        <span>
+            <svg width="16" height="14" viewBox="0 0 16 14" fill="none" stroke="#fff" stroke-width="1.5"><path d="M1 13h14M4 9h8M7 5h2"></path></svg>
+            <svg width="18" height="14" viewBox="0 0 18 14" fill="none" stroke="#fff" stroke-width="1.5" style="margin-left: 5px;"><rect x="1" y="3" width="14" height="8" rx="2"></rect><path d="M17 6v2"></path></svg>
+        </span>
+    </div>
+
+    <!-- 背景装饰 -->
+    <div class="bg-decor-1"></div>
+    <div class="bg-decor-2"></div>
+    
+    <!-- 笑脸装饰及星星 SVG -->
+    <div class="smile-decor-container">
+        <!-- 主笑脸 -->
+        <svg class="smile-decor" viewBox="0 0 100 100" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M25 35 Q25 50 35 50" />
+            <path d="M60 25 L75 40 L90 25" />
+            <path d="M15 70 Q50 95 90 60" />
+        </svg>
+        <!-- 星星装饰 1 -->
+        <svg class="star-decor-1" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+        </svg>
+        <!-- 星星装饰 2 -->
+        <svg class="star-decor-2" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+        </svg>
+    </div>
+
+    <!-- 顶部欢迎区 -->
+    <div class="header-section">
+        <div class="notification-btn" onclick="showToast('暂无新消息')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <div class="notification-dot"></div>
+        </div>
+        <div class="welcome-title">Hi~</div>
+        <div class="welcome-subtitle">欢迎来到享乐派</div>
+    </div>
+
+    <!-- 页面容器 1：无收藏状态 -->
+    <div id="page-empty" class="page active">
+        <div class="empty-state">
+            <div class="empty-icon">
+                <!-- 模拟黑胶唱片和猫咪的 SVG 占位 -->
+                <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                </svg>
+            </div>
+            <div class="empty-title">暂无收藏</div>
+            <div class="empty-desc">点击下方“+”号，添加您的第一个藏品吧~</div>
+        </div>
+    </div>
+
+    <!-- 页面容器 2：有收藏的画廊状态 -->
+    <div id="page-gallery" class="page">
+        <div class="album-list-container">
+            <div class="album-count"><span>1</span> / 7</div>
+            
+            <div class="gallery-wrapper" id="gallery">
+                <!-- 藏品 1 -->
+                <div class="album-card active" data-index="1" onclick="handleCardClick(this)">
+                    <div class="album-cover-wrapper">
+                        <!-- 真实的专辑封面图 -->
+                        <div class="album-cover"></div>
+                    </div>
+                    <div class="album-info">
+                        <div class="album-tags">
+                            <span class="album-tag tag-physical">实体专辑</span>
+                            <span class="album-tag tag-digital">电子专辑</span>
+                        </div>
+                        <div class="album-name">STUPID POP<br>SONGS</div>
+                        <div class="album-artist">陶喆</div>
+                    </div>
+                </div>
+
+                <!-- 藏品 2 -->
+                <div class="album-card next" data-index="2" onclick="handleCardClick(this)">
+                    <div class="album-cover-wrapper">
+                        <div class="album-cover" style="background-image: none; background: linear-gradient(45deg, #1c7fff, #5df2d6); display:flex; justify-content:center; align-items:center; color:#fff; font-size:24px; font-weight:bold; border-radius:12px;">Jay Chou</div>
+                    </div>
+                    <div class="album-info">
+                        <div class="album-tags">
+                            <span class="album-tag tag-digital">电子专辑</span>
+                        </div>
+                        <div class="album-name">FANTASY</div>
+                        <div class="album-artist">周杰伦</div>
+                    </div>
+                </div>
+
+                <!-- 藏品 3 -->
+                <div class="album-card" data-index="3" style="transform: translateZ(-200px) translateX(250px) translateY(80px) rotate(30deg); z-index: 1; opacity: 0; pointer-events: none;" onclick="handleCardClick(this)">
+                    <div class="album-cover-wrapper">
+                        <div class="album-cover" style="background-image: none; background: linear-gradient(45deg, #ff416c, #ff4b2b); display:flex; justify-content:center; align-items:center; color:#fff; font-size:24px; font-weight:bold; border-radius:12px;">Eason Chan</div>
+                    </div>
+                    <div class="album-info">
+                        <div class="album-tags">
+                            <span class="album-tag tag-physical">实体专辑</span>
+                        </div>
+                        <div class="album-name">U87</div>
+                        <div class="album-artist">陈奕迅</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div class="bottom-nav">
+        <div class="nav-item active">
+            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+            <span>收藏</span>
+        </div>
+        
+        <div class="add-btn-wrapper">
+            <div class="add-btn" onclick="openActionSheet()">+</div>
+        </div>
+
+        <div class="nav-item" onclick="showToast('切换至个人中心')">
+            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>我的</span>
+        </div>
+    </div>
+
+    <!-- 添加选项弹窗 -->
+    <div id="action-modal" class="modal-overlay">
+        <div class="action-sheet">
+            <!-- 弹窗内的笑脸装饰 -->
+            <svg style="position: absolute; top: -30px; right: 20px; width: 80px; height: 80px; z-index: 10;" viewBox="0 0 100 100" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 30 L35 50" />
+                <path d="M60 20 L75 40" />
+                <path d="M20 70 Q50 95 85 60" />
+                <path d="M80 10 L90 20 M90 10 L80 20" stroke-width="4"/>
+            </svg>
+
+            <div class="action-sheet-title">添加藏品</div>
+            <div class="action-sheet-subtitle">这件新品，与你甚是相配</div>
+
+            <div class="action-options">
+                <div class="action-option" onclick="simulateAddSuccess()">
+                    <div class="action-icon-box">NFC</div>
+                    <div class="action-text">NFC识别</div>
+                </div>
+                <div class="action-option" onclick="simulateAddSuccess()">
+                    <div class="action-icon-box">
+                        <svg viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path><line x1="7" y1="12" x2="17" y2="12"></line></svg>
+                    </div>
+                    <div class="action-text">扫描二维码</div>
+                </div>
+            </div>
+
+            <div class="close-btn-bottom" onclick="closeActionSheet()">
+                <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加成功弹窗 -->
+    <div id="success-modal-wrapper" class="success-modal-container">
+        <!-- 半透明深色背景 -->
+        <div style="position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8);" onclick="closeSuccessModal()"></div>
+        
+        <div class="success-modal">
+            <div class="success-header-bg"></div>
+            <div class="success-badge"></div>
+            
+            <div class="success-title">成功收藏</div>
+            
+            <div class="success-album-cover">
+                <!-- 真实的专辑封面图 -->
+                <div class="album-cover"></div>
+            </div>
+            
+            <div class="success-album-name">STUPID POP SONGS</div>
+        </div>
+        
+        <!-- 弹窗外部底部的按钮 -->
+        <button class="btn-outline-white" style="position: absolute; bottom: 150px; z-index: 2001;" onclick="closeSuccessModalAndShowGallery()">开心收下</button>
+    </div>
+
+    <!-- 吐司提示 -->
+    <div id="toast" class="toast">提示信息</div>
+
+    <!-- 底部横条 -->
+    <div class="home-indicator"></div>
+</div>
+
+<script>
+    // 模拟状态栏时间
+    setInterval(() => {
+        const now = new Date();
+        document.getElementById('clock').innerText = 
+            String(now.getHours()).padStart(2, '0') + ':' + 
+            String(now.getMinutes()).padStart(2, '0');
+    }, 1000);
+
+    // 提示框逻辑
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.innerText = msg;
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 2000);
+    }
+
+    // 动作面板逻辑
+    function openActionSheet() {
+        const modal = document.getElementById('action-modal');
+        modal.style.display = 'flex';
+        setTimeout(() => {
+            modal.classList.add('show');
+        }, 10);
+    }
+
+    function closeActionSheet() {
+        const modal = document.getElementById('action-modal');
+        modal.classList.remove('show');
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
+    }
+
+    // 模拟添加成功
+    function simulateAddSuccess() {
+        showToast('正在识别...');
+        setTimeout(() => {
+            closeActionSheet();
+            setTimeout(() => {
+                const successModal = document.getElementById('success-modal-wrapper');
+                successModal.style.display = 'flex';
+                setTimeout(() => {
+                    successModal.classList.add('show');
+                }, 10);
+            }, 300);
+        }, 1000);
+    }
+
+    function closeSuccessModal() {
+        const modal = document.getElementById('success-modal-wrapper');
+        modal.classList.remove('show');
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
+    }
+
+    // 点击开心收下，关闭弹窗并切换到画廊视图
+    function closeSuccessModalAndShowGallery() {
+        closeSuccessModal();
+        setTimeout(() => {
+            document.getElementById('page-empty').classList.remove('active');
+            document.getElementById('page-gallery').classList.add('active');
+            showToast('已添加入库');
+            updateAlbumCount();
+        }, 300);
+    }
+
+    // 画廊卡片切换逻辑
+    let currentAlbumIndex = 1;
+    const totalAlbums = 3; // 目前模拟了3个藏品
+
+    function updateAlbumCount() {
+        document.querySelector('.album-count').innerHTML = `<span>${currentAlbumIndex}</span> / 7`;
+    }
+
+    function handleCardClick(clickedCard) {
+        if (clickedCard.classList.contains('active')) {
+            showToast('进入专辑详情页');
+            return;
+        }
+
+        const cards = document.querySelectorAll('.album-card');
+        const clickedIndex = parseInt(clickedCard.getAttribute('data-index'));
+
+        cards.forEach(card => {
+            const index = parseInt(card.getAttribute('data-index'));
+            
+            // 清除之前的状态类和内联样式
+            card.classList.remove('active', 'prev', 'next');
+            card.style.transform = '';
+            card.style.zIndex = '';
+            card.style.opacity = '';
+            card.style.pointerEvents = '';
+
+            // 重新计算相对位置
+            if (index === clickedIndex) {
+                card.classList.add('active');
+            } else if (index === clickedIndex - 1) {
+                card.classList.add('prev');
+            } else if (index === clickedIndex + 1) {
+                card.classList.add('next');
+            } else if (index < clickedIndex - 1) {
+                // 更靠左的隐藏卡片 (扇形轨迹延伸)
+                card.style.transform = 'translateZ(-200px) translateX(-250px) translateY(80px) rotate(-30deg)';
+                card.style.zIndex = '1';
+                card.style.opacity = '0';
+                card.style.pointerEvents = 'none';
+            } else if (index > clickedIndex + 1) {
+                // 更靠右的隐藏卡片 (扇形轨迹延伸)
+                card.style.transform = 'translateZ(-200px) translateX(250px) translateY(80px) rotate(30deg)';
+                card.style.zIndex = '1';
+                card.style.opacity = '0';
+                card.style.pointerEvents = 'none';
+            }
+        });
+
+        currentAlbumIndex = clickedIndex;
+        updateAlbumCount();
+    }
+
+</script>
+
+</body>
+</html>
